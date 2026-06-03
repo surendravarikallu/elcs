@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────
+   ELCS — Color Token System (Tailwind v4)
+───────────────────────────────────────────────── */
+@theme {
+  --color-anthracite:          #2D302F;
+  --color-timberwolf:          #D7D0C7;
+  --color-raw-umber:           #7A5938;
+  --color-circuit-gold:        #D4AF37;
+  --color-circuit-gold-light:  #E5C158;
+}
+
+/* ─────────────────────────────────────────────────
+   ELCS — Font System  (refs next/font CSS vars)
+───────────────────────────────────────────────── */
+@theme inline {
+  --font-bebas:   var(--ff-bebas),   sans-serif;
+  --font-outfit:  var(--ff-outfit),  sans-serif;
+  --font-caudex:  var(--ff-caudex),  serif;
+  --font-nunito:  var(--ff-nunito),  sans-serif;
+  --font-mono:    var(--ff-mono),    monospace;
+}
+
+/* ─────────────────────────────────────────────────
+   Base Reset
+───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: #2D302F;
+  color: #D7D0C7;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: #D4AF37;
+  color: #2D302F;
+}
+
+/* Subtle custom scrollbar */
+::-webkit-scrollbar               { width: 4px; }
+::-webkit-scrollbar-track         { background: #2D302F; }
+::-webkit-scrollbar-thumb         { background: #7A5938; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover   { background: #D4AF37; }
