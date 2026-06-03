@@ -1,19 +1,21 @@
-import Preloader from '@/components/Preloader'
+import Preloader            from '@/components/Preloader'
+import Navbar               from '@/components/Navbar'
+import Hero                 from '@/components/sections/Hero'
+import About                from '@/components/sections/About'
+import ThreeCs              from '@/components/sections/ThreeCs'
+import Footer               from '@/components/sections/Footer'
 
 export default function Home() {
   return (
     <>
       <Preloader />
-
-      {/* ─── Sections mount here one by one ─── */}
-      <main className="min-h-screen bg-anthracite flex items-center justify-center">
-        <p
-          className="text-timberwolf/20 text-[10px] tracking-[0.5em] uppercase"
-          style={{ fontFamily: 'var(--ff-mono)' }}
-        >
-          ELCS — Building...
-        </p>
+      <Navbar />
+      <main>
+        <Hero />
+        <About />
+        <ThreeCs />
       </main>
+      <Footer />
     </>
   )
 }
