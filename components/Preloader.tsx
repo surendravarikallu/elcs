@@ -1,117 +1,131 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
-export default function Preloader() {
-  const [logoError, setLogoError] = useState(false)
-  const [isVisible, setIsVisible] = useState(true)
+export function Preloader({ onComplete }: { onComplete?: () => void }) {
+  const [count, setCount] = useState(0);
+  const [phase, setPhase] = useState<"count" | "logo" | "curtain" | "done">("count");
+
+  // Lock scroll while preloader is visible, release the instant we're done.
+  useEffect(() => {
+    if (phase === "done") {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      return;
+    }
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
+  }, [phase]);
 
   useEffect(() => {
-    // Hard-lock scroll while preloader owns the screen
-    document.body.style.overflow = 'hidden'
+    if (phase !== "count") return;
+    const start = performance.now();
+    const dur = 1400;
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / dur);
+      setCount(Math.floor(p * 100));
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else setTimeout(() => setPhase("logo"), 150);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [phase]);
 
-    // Trigger the curtain wipe after all entrance animations settle
-    const timer = setTimeout(() => setIsVisible(false), 2700)
+  useEffect(() => {
+    if (phase === "logo") {
+      const t = setTimeout(() => setPhase("curtain"), 1400);
+      return () => clearTimeout(t);
+    }
+    if (phase === "curtain") {
+      const t = setTimeout(() => { setPhase("done"); onComplete?.(); }, 700);
+      return () => clearTimeout(t);
+    }
+  }, [phase, onComplete]);
 
-    return () => clearTimeout(timer)
-  }, [])
-
-  const handleExitComplete = () => {
-    // Restore scroll once curtain finishes lifting
-    document.body.style.overflow = ''
-  }
+  const stroke = "var(--color-accent)";
 
   return (
-    <AnimatePresence onExitComplete={handleExitComplete}>
-      {isVisible && (
+    <AnimatePresence>
+      {phase !== "done" && (
         <motion.div
-          key="preloader"
-          // Full-screen Anthracite canvas, highest z-index
-          className="fixed inset-0 z-[9999] bg-anthracite flex items-center justify-center"
-          exit={{
-            y: '-100%',
-            transition: {
-              duration: 0.75,
-              ease: [0.76, 0, 0.24, 1], // sharp cubic-bezier curtain lift
-            },
-          }}
+          className="fixed inset-0 z-[100] bg-background flex items-center justify-center"
+          initial={{ y: 0 }}
+          animate={phase === "curtain" ? { y: "-100%" } : { y: 0 }}
+          transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
         >
-          <div className="flex flex-col items-center gap-7">
-
-            {/* ── Logo: rolls in from left, spring-settles at center ── */}
-            <motion.div
-              initial={{ x: '-58vw', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{
-                duration: 0.9,
-                ease: [0.22, 1, 0.36, 1], // smooth deceleration
-                delay: 0.15,
-              }}
-            >
-              {/* Settle-bounce when it lands */}
-              <motion.div
-                animate={{ scale: [1, 1.08, 0.96, 1] }}
-                transition={{
-                  duration: 0.5,
-                  delay: 1.1,
-                  times: [0, 0.35, 0.7, 1],
-                  ease: 'easeInOut',
-                }}
-                className="relative"
-              >
-                {/* Gold ring glow — appears on landing */}
+          <div className="relative w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
+            <AnimatePresence>
+              {phase === "count" && (
                 <motion.div
-                  className="absolute rounded-full pointer-events-none"
-                  style={{
-                    inset: '-4px',
-                    boxShadow:
-                      '0 0 0 1.5px #D4AF37, 0 0 28px rgba(212, 175, 55, 0.18)',
-                  }}
-                  initial={{ opacity: 0, scale: 1.25 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1.12, duration: 0.38, ease: 'easeOut' }}
+                  key="count"
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="font-mono text-foreground/90 text-4xl md:text-5xl tabular-nums"
+                >
+                  {String(count).padStart(3, "0")}
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {phase !== "count" && (
+              <motion.svg
+                viewBox="0 0 100 100"
+                className="absolute inset-0 w-full h-full"
+                fill="none"
+                stroke={stroke}
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* Outer ring — draws first */}
+                <motion.circle
+                  cx="50" cy="50" r="46"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.9, ease: "easeInOut" }}
                 />
-
-                {/* Logo image — fallback to gold wordmark if missing */}
-                {!logoError ? (
-                  <img
-                    src="/images/ELCS_final_logo.png"
-                    alt="ELCS"
-                    onError={() => setLogoError(true)}
-                    className="w-24 h-24 rounded-full object-cover block relative z-10"
+                {/* Four traces stagger-draw */}
+                {[
+                  "M30 24 V40 H50",
+                  "M50 36 V78",
+                  "M64 36 V52 H50",
+                  "M30 58 V70 H42",
+                ].map((d, i) => (
+                  <motion.path
+                    key={d}
+                    d={d}
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.7, ease: "easeInOut", delay: 0.5 + i * 0.12 }}
                   />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-anthracite border border-circuit-gold/50 flex items-center justify-center relative z-10">
-                    <span
-                      className="text-circuit-gold text-2xl tracking-[0.15em]"
-                      style={{ fontFamily: 'var(--ff-bebas)' }}
-                    >
-                      ELCS
-                    </span>
-                  </div>
-                )}
-              </motion.div>
-            </motion.div>
-
-            {/* ── #ConnectTogether — fades up after logo settles ── */}
-            <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.55,
-                delay: 1.55,
-                ease: 'easeOut',
-              }}
-              className="text-circuit-gold text-[10px] tracking-[0.45em] uppercase"
-              style={{ fontFamily: 'var(--ff-mono)' }}
-            >
-              #ConnectTogether
-            </motion.span>
-
+                ))}
+                {/* Terminal nodes fade in after traces */}
+                {[
+                  ["30", "22", "3.5"],
+                  ["50", "34", "5"],
+                  ["64", "34", "3.5"],
+                  ["30", "56", "3.5"],
+                ].map(([cx, cy, r], i) => (
+                  <motion.circle
+                    key={`${cx}-${cy}`}
+                    cx={cx} cy={cy} r={r}
+                    fill="none"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: 1.15 + i * 0.08 }}
+                    style={{ transformOrigin: `${cx}px ${cy}px` }}
+                  />
+                ))}
+              </motion.svg>
+            )}
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }

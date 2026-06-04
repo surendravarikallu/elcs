@@ -1,218 +1,272 @@
-'use client'
+"use client";
 
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 
-/* ── PCB schematic grid SVG ───────────────────── */
-function PCBGrid() {
-  return (
-    <svg
-      className="absolute inset-0 w-full h-full"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <defs>
-        <pattern id="pcb-cell" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse">
-          {/* Grid lines */}
-          <line x1="0" y1="0" x2="44" y2="0"  stroke="#7A5938" strokeWidth="0.4" opacity="0.5"/>
-          <line x1="0" y1="0" x2="0"  y2="44" stroke="#7A5938" strokeWidth="0.4" opacity="0.5"/>
-          {/* Corner pads */}
-          <circle cx="0"  cy="0"  r="2"   fill="#7A5938" opacity="0.7"/>
-          <circle cx="44" cy="0"  r="1.2" fill="#7A5938" opacity="0.4"/>
-          <circle cx="0"  cy="44" r="1.2" fill="#7A5938" opacity="0.4"/>
-          {/* PCB traces */}
-          <line x1="0"  y1="12" x2="20" y2="12" stroke="#7A5938" strokeWidth="0.6" opacity="0.6"/>
-          <line x1="20" y1="12" x2="20" y2="30" stroke="#7A5938" strokeWidth="0.6" opacity="0.6"/>
-          <line x1="20" y1="30" x2="44" y2="30" stroke="#7A5938" strokeWidth="0.6" opacity="0.6"/>
-          {/* Via circles */}
-          <circle cx="20" cy="12" r="2.5" fill="none" stroke="#D4AF37" strokeWidth="0.6" opacity="0.5"/>
-          <circle cx="20" cy="30" r="2.5" fill="none" stroke="#D4AF37" strokeWidth="0.6" opacity="0.5"/>
-          {/* IC component outline */}
-          <rect x="28" y="18" width="12" height="8" fill="none" stroke="#7A5938" strokeWidth="0.4" opacity="0.4"/>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#pcb-cell)" />
-    </svg>
-  )
-}
+/**
+ * AboutBento — Obsidian micro-workshop.
+ * Background = a live PCB. Cursor drags a "solder iron" glow across the board;
+ * the nearest 6 nodes light up sequentially (wire-traces fill toward cursor),
+ * pads pulse, and an ambient grid breathes under it all.
+ */
+export function AboutBento() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const mx = useMotionValue(-500);
+  const my = useMotionValue(-500);
+  const sx = useSpring(mx, { stiffness: 120, damping: 18, mass: 0.4 });
+  const sy = useSpring(my, { stiffness: 120, damping: 18, mass: 0.4 });
 
-/* ── Bento block wrapper ─────────────────────── */
-function BentoBlock({
-  children, className = '', delay = 0,
-}: { children: React.ReactNode; className?: string; delay?: number }) {
-  const ref    = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
+  const [active, setActive] = useState<number[]>([]);
+  const [coords, setCoords] = useState({ x: -500, y: -500 });
 
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 28 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative bg-anthracite/60 border border-white/[0.07] rounded-2xl overflow-hidden ${className}`}
-    >
-      {children}
-    </motion.div>
-  )
-}
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const onMove = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      mx.set(x);
+      my.set(y);
+      setCoords({ x, y });
+      // light the 5 closest nodes
+      const dists = NODES.map((n, i) => ({
+        i,
+        d: Math.hypot(n.x - (x / r.width) * 1200, n.y - (y / r.height) * 800),
+      }))
+        .sort((a, b) => a.d - b.d)
+        .slice(0, 6)
+        .filter((n) => n.d < 320)
+        .map((n) => n.i);
+      setActive(dists);
+    };
+    const onLeave = () => {
+      mx.set(-500);
+      my.set(-500);
+      setActive([]);
+    };
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerleave", onLeave);
+    return () => {
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", onLeave);
+    };
+  }, [mx, my]);
 
-export default function About() {
-  const sectionRef = useRef<HTMLDivElement>(null)
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = sectionRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    el.style.setProperty('--mx', `${e.clientX - rect.left}px`)
-    el.style.setProperty('--my', `${e.clientY - rect.top}px`)
-  }
-
-  const CERTS = ['[IPC-DESIGN-RULES]', '[ROHS-COMPLIANT]', '[ESD-SAFE-PROCESS]', '[MULTI-LAYER-PCB]']
-  const SUPPORTS = [
-    { label: '3D Models',   desc: 'Complete .STEP files for every module' },
-    { label: 'Schematics',  desc: 'Full circuit documentation & BOMs' },
-    { label: 'Firmware',    desc: 'Reference firmware and HAL libraries' },
-    { label: 'Datasheets',  desc: 'Comprehensive technical specifications' },
-  ]
+  // Glow halo
+  const haloBg = useTransform(
+    [sx, sy] as any,
+    ([x, y]: number[]) =>
+      `radial-gradient(180px circle at ${x}px ${y}px, oklch(0.78 0.13 85 / 0.18), transparent 70%)`,
+  );
 
   return (
-    <section
-      ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      className="relative py-24 px-6 md:px-12 bg-anthracite overflow-hidden"
-      style={{ '--mx': '-999px', '--my': '-999px' } as React.CSSProperties}
-    >
-
-      {/* ── PCB cursor-reveal layer ──────────────── */}
+    <section id="about" className="relative bg-background">
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          maskImage:         'radial-gradient(circle 200px at var(--mx) var(--my), black 20%, transparent 100%)',
-          WebkitMaskImage:   'radial-gradient(circle 200px at var(--mx) var(--my), black 20%, transparent 100%)',
-        }}
+        ref={wrapRef}
+        className="relative overflow-hidden border-y border-foreground/5"
       >
-        <PCBGrid />
-      </div>
+        {/* Layer 1: ambient breathing grid */}
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--color-foreground) 1px, transparent 1px), linear-gradient(90deg, var(--color-foreground) 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
+          }}
+        />
 
-      {/* ── Section label ── */}
-      <motion.p
-        className="text-raw-umber text-[10px] tracking-[0.45em] uppercase mb-10"
-        style={{ fontFamily: 'var(--ff-mono)' }}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        [01] — About ELCS
-      </motion.p>
+        {/* Layer 2: PCB board SVG (1200x800 viewBox, scales) */}
+        <svg
+          aria-hidden
+          viewBox="0 0 1200 800"
+          preserveAspectRatio="xMidYMid slice"
+          className="absolute inset-0 w-full h-full"
+        >
+          {/* base traces, low-opacity */}
+          {TRACES.map((d, i) => (
+            <path
+              key={`base-${i}`}
+              d={d}
+              stroke="var(--color-accent)"
+              strokeWidth="0.6"
+              fill="none"
+              opacity="0.18"
+            />
+          ))}
+          {/* base pads */}
+          {NODES.map((n, i) => (
+            <g key={`bp-${i}`}>
+              <circle cx={n.x} cy={n.y} r={n.r} stroke="var(--color-accent)" strokeWidth="0.6" fill="none" opacity="0.35" />
+              <circle cx={n.x} cy={n.y} r={n.r - 2} fill="var(--color-background)" />
+            </g>
+          ))}
+          {/* IC chips */}
+          {CHIPS.map((c, i) => (
+            <g key={`c-${i}`} opacity="0.5">
+              <rect x={c.x} y={c.y} width={c.w} height={c.h} stroke="var(--color-accent)" strokeWidth="0.8" fill="oklch(0.10 0.004 240)" rx="2" />
+              <text x={c.x + c.w / 2} y={c.y + c.h / 2 + 3} textAnchor="middle" fill="var(--color-accent)" fontSize="7" fontFamily="JetBrains Mono" opacity="0.7">{c.label}</text>
+            </g>
+          ))}
 
-      {/* ── Bento Grid ───────────────────────────── */}
-      <div className="relative grid grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto">
+          {/* active highlight pass — animated traces & glowing pads */}
+          {TRACES.map((d, i) => {
+            const lit = active.some((a) => TRACE_NODES[i]?.includes(a));
+            return (
+              <motion.path
+                key={`hl-${i}`}
+                d={d}
+                stroke="var(--color-accent-glow)"
+                strokeWidth="1.2"
+                fill="none"
+                strokeLinecap="round"
+                initial={false}
+                animate={{ opacity: lit ? 1 : 0, pathLength: lit ? 1 : 0 }}
+                transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
+                style={{ pathLength: lit ? 1 : 0, filter: lit ? "drop-shadow(0 0 4px var(--color-accent))" : "none" }}
+              />
+            );
+          })}
+          {NODES.map((n, i) => {
+            const lit = active.includes(i);
+            return (
+              <motion.circle
+                key={`np-${i}`}
+                cx={n.x}
+                cy={n.y}
+                r={n.r}
+                fill="var(--color-accent)"
+                initial={false}
+                animate={{ opacity: lit ? 1 : 0, scale: lit ? 1 : 0.4 }}
+                transition={{ duration: 0.35 }}
+                style={{ transformOrigin: `${n.x}px ${n.y}px`, filter: lit ? "drop-shadow(0 0 6px var(--color-accent-glow))" : "none" }}
+              />
+            );
+          })}
 
-        {/* Block 1 — Mission prose · span 2 cols */}
-        <BentoBlock className="md:col-span-2 p-10" delay={0.1}>
-          <p
-            className="text-[10px] tracking-[0.35em] text-circuit-gold mb-6 uppercase"
-            style={{ fontFamily: 'var(--ff-mono)' }}
-          >
-            Mission Statement
-          </p>
-          <p
-            className="text-timberwolf text-xl md:text-2xl leading-relaxed font-normal mb-6"
-            style={{ fontFamily: 'var(--ff-caudex)' }}
-          >
-            At ELCS, we design and manufacture future-ready embedded modules,
-            control systems, and connectivity devices built with precision and quality.
-          </p>
-          <p
-            className="text-timberwolf/60 text-base leading-relaxed"
-            style={{ fontFamily: 'var(--ff-caudex)' }}
-          >
-            Our mission is to simplify hardware development — offering plug-and-play
-            modules, ready-to-use PCB designs, and custom embedded solutions that help
-            engineers, makers, and industries innovate faster. Every product ships with
-            complete 3D models, technical documentation, and full support files, making
-            integration easy for everyone from beginners to professionals.
-          </p>
-        </BentoBlock>
+          {/* crosshair following cursor */}
+          {coords.x > 0 && (
+            <g style={{ transform: `translate(${(coords.x / (wrapRef.current?.clientWidth || 1)) * 1200}px, ${(coords.y / (wrapRef.current?.clientHeight || 1)) * 800}px)` }}>
+              <circle r="14" stroke="var(--color-accent)" strokeWidth="0.6" fill="none" opacity="0.6" />
+              <circle r="2" fill="var(--color-accent-glow)" />
+              <line x1="-22" y1="0" x2="-16" y2="0" stroke="var(--color-accent)" strokeWidth="0.6" />
+              <line x1="16" y1="0" x2="22" y2="0" stroke="var(--color-accent)" strokeWidth="0.6" />
+              <line x1="0" y1="-22" x2="0" y2="-16" stroke="var(--color-accent)" strokeWidth="0.6" />
+              <line x1="0" y1="16" x2="0" y2="22" stroke="var(--color-accent)" strokeWidth="0.6" />
+            </g>
+          )}
+        </svg>
 
-        {/* Block 2 — Compliance badges · span 1 col */}
-        <BentoBlock className="md:col-span-1 p-8 flex flex-col justify-between" delay={0.2}>
-          <p
-            className="text-[10px] tracking-[0.35em] text-circuit-gold mb-6 uppercase"
-            style={{ fontFamily: 'var(--ff-mono)' }}
-          >
-            Quality Standards
-          </p>
-          <div className="flex flex-col gap-4 flex-1 justify-center">
-            {CERTS.map((cert, i) => (
-              <motion.div
-                key={cert}
-                initial={{ opacity: 0, x: -12 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.35 + i * 0.1, duration: 0.4 }}
-                className="flex items-center gap-3"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-circuit-gold flex-shrink-0" />
-                <span
-                  className="text-timberwolf/80 text-xs tracking-[0.15em]"
-                  style={{ fontFamily: 'var(--ff-mono)' }}
-                >
-                  {cert}
-                </span>
-              </motion.div>
-            ))}
+        {/* Layer 3: soldering iron halo */}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 hidden md:block"
+          style={{ background: haloBg as any, mixBlendMode: "screen" }}
+        />
+
+        {/* Vignette */}
+        <div aria-hidden className="pointer-events-none absolute inset-0" style={{
+          background: "radial-gradient(ellipse at center, transparent 30%, var(--color-background) 95%)",
+        }} />
+
+        {/* Content card */}
+        <div className="relative px-6 md:px-12 py-28 md:py-44 max-w-5xl mx-auto">
+          <div className="relative">
+            {/* corner ticks */}
+            <Corner pos="tl" /><Corner pos="tr" /><Corner pos="bl" /><Corner pos="br" />
+
+            <div className="px-6 md:px-14 py-10 md:py-16">
+              <div className="font-mono text-xs text-accent tracking-[0.4em] mb-8">
+                [ ABOUT / NODE.001 ]
+              </div>
+              <h2 className="font-display uppercase text-4xl md:text-6xl lg:text-7xl leading-[0.95] text-foreground font-light">
+                We build the <span className="text-accent italic font-serif">silent</span> hardware<br />
+                behind loud ideas.
+              </h2>
+              <p className="font-serif text-lg md:text-2xl text-foreground/75 leading-relaxed mt-8 max-w-3xl">
+                ELCS designs and manufactures future-ready embedded modules, control systems, and connectivity devices — precision-engineered, certified to standard, and ready to ship.
+              </p>
+              <p className="font-body text-foreground/55 mt-6 max-w-2xl">
+                Plug-and-play modules, production-grade PCBs, and custom embedded solutions for engineers, makers, and industries that move fast.
+              </p>
+
+              <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8 border-t border-foreground/10 pt-10">
+                {STATS.map((s) => (
+                  <div key={s.k}>
+                    <div className="font-display text-3xl md:text-4xl text-accent">{s.v}</div>
+                    <div className="font-mono text-[10px] tracking-[0.25em] text-foreground/50 uppercase mt-2">{s.k}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="font-mono text-[10px] tracking-[0.3em] text-foreground/40 uppercase mt-12 flex items-center gap-3">
+                <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+                MOVE CURSOR — TRACE THE BOARD
+              </div>
+            </div>
           </div>
-          <div className="mt-6 pt-6 border-t border-white/[0.07]">
-            <p
-              className="text-timberwolf/40 text-[10px] tracking-[0.25em]"
-              style={{ fontFamily: 'var(--ff-mono)' }}
-            >
-              IPC · RoHS · ESD-safe
-            </p>
-          </div>
-        </BentoBlock>
-
-        {/* Block 3 — Support ecosystem · full width */}
-        <BentoBlock className="md:col-span-3 p-8" delay={0.3}>
-          <p
-            className="text-[10px] tracking-[0.35em] text-circuit-gold mb-8 uppercase"
-            style={{ fontFamily: 'var(--ff-mono)' }}
-          >
-            Open Engineering Ecosystem
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {SUPPORTS.map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 + i * 0.08, duration: 0.45 }}
-                className="flex flex-col gap-2 group"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-px bg-circuit-gold/60 group-hover:w-8 transition-all duration-300" />
-                  <span
-                    className="text-timberwolf text-sm font-semibold"
-                    style={{ fontFamily: 'var(--ff-outfit)' }}
-                  >
-                    {s.label}
-                  </span>
-                </div>
-                <p
-                  className="text-timberwolf/50 text-xs leading-relaxed pl-7"
-                  style={{ fontFamily: 'var(--ff-nunito)' }}
-                >
-                  {s.desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </BentoBlock>
-
+        </div>
       </div>
     </section>
-  )
+  );
 }
+
+function Corner({ pos }: { pos: "tl" | "tr" | "bl" | "br" }) {
+  const map = {
+    tl: "top-0 left-0 border-t border-l",
+    tr: "top-0 right-0 border-t border-r",
+    bl: "bottom-0 left-0 border-b border-l",
+    br: "bottom-0 right-0 border-b border-r",
+  };
+  return <span className={`absolute w-5 h-5 border-accent ${map[pos]}`} aria-hidden />;
+}
+
+const STATS = [
+  { k: "MODULES SHIPPED", v: "12K+" },
+  { k: "DESIGN ITERATIONS", v: "350" },
+  { k: "COMPLIANCE", v: "RoHS" },
+  { k: "UPTIME TARGET", v: "99.9" },
+];
+
+// PCB board geometry — coordinates in 1200x800 viewBox
+const NODES = [
+  { x: 120, y: 120, r: 5 }, { x: 320, y: 90, r: 5 }, { x: 540, y: 140, r: 5 },
+  { x: 760, y: 110, r: 5 }, { x: 980, y: 150, r: 5 }, { x: 1100, y: 280, r: 5 },
+  { x: 1080, y: 480, r: 5 }, { x: 940, y: 620, r: 5 }, { x: 720, y: 680, r: 5 },
+  { x: 500, y: 640, r: 5 }, { x: 280, y: 700, r: 5 }, { x: 110, y: 560, r: 5 },
+  { x: 90, y: 340, r: 5 }, { x: 380, y: 320, r: 5 }, { x: 640, y: 400, r: 5 },
+  { x: 860, y: 350, r: 5 }, { x: 600, y: 240, r: 4 }, { x: 460, y: 500, r: 4 },
+];
+
+const TRACES = [
+  "M120 120 L120 200 L320 200 L320 90",
+  "M320 90 L540 90 L540 140",
+  "M540 140 L640 140 L640 400",
+  "M760 110 L760 200 L980 200 L980 150",
+  "M980 150 L1100 150 L1100 280",
+  "M1100 280 L1100 480 L1080 480",
+  "M1080 480 L1080 580 L940 580 L940 620",
+  "M940 620 L720 620 L720 680",
+  "M720 680 L500 680 L500 640",
+  "M500 640 L280 640 L280 700",
+  "M280 700 L110 700 L110 560",
+  "M110 560 L110 340 L90 340",
+  "M90 340 L380 340 L380 320",
+  "M380 320 L600 320 L600 240",
+  "M640 400 L860 400 L860 350",
+  "M460 500 L640 500 L640 400",
+];
+
+// Which node indices each trace connects (for highlight gating)
+const TRACE_NODES = [
+  [0, 1], [1, 2], [2, 14], [3, 4], [4, 5], [5, 6], [6, 7],
+  [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13],
+  [13, 16], [14, 15], [17, 14],
+];
+
+const CHIPS = [
+  { x: 420, y: 220, w: 90, h: 50, label: "MCU-32" },
+  { x: 800, y: 460, w: 110, h: 60, label: "RF-MOD" },
+  { x: 180, y: 420, w: 70, h: 40, label: "PMIC" },
+];

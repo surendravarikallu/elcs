@@ -1,47 +1,117 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-/* ─────────────────────────────────────────────────
-   ELCS — Color Token System (Tailwind v4)
-───────────────────────────────────────────────── */
-@theme {
-  --color-anthracite:          #2D302F;
-  --color-timberwolf:          #D7D0C7;
-  --color-raw-umber:           #7A5938;
-  --color-circuit-gold:        #D4AF37;
-  --color-circuit-gold-light:  #E5C158;
-}
+@custom-variant dark (&:is(.dark *));
 
-/* ─────────────────────────────────────────────────
-   ELCS — Font System  (refs next/font CSS vars)
-───────────────────────────────────────────────── */
+/* ELCS Design System — Anthracite / Timberwolf / Raw Umber / Circuit Gold */
+
 @theme inline {
-  --font-bebas:   var(--ff-bebas),   sans-serif;
-  --font-outfit:  var(--ff-outfit),  sans-serif;
-  --font-caudex:  var(--ff-caudex),  serif;
-  --font-nunito:  var(--ff-nunito),  sans-serif;
-  --font-mono:    var(--ff-mono),    monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-glow: var(--accent-glow);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Font stacks — next/font injects the actual family via CSS vars */
+  --font-display: var(--ff-display), "Impact", sans-serif;
+  --font-serif: var(--ff-serif), "Georgia", serif;
+  --font-sans: var(--ff-sans), system-ui, sans-serif;
+  --font-body: var(--ff-body), "Inter", sans-serif;
+  --font-mono: var(--ff-mono), ui-monospace, monospace;
 }
 
-/* ─────────────────────────────────────────────────
-   Base Reset
-───────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+:root {
+  --radius: 0.5rem;
 
-html { scroll-behavior: smooth; }
-
-body {
-  background-color: #2D302F;
-  color: #D7D0C7;
-  overflow-x: hidden;
+  /* Obsidian Black */
+  --background: oklch(0.08 0.003 240);
+  /* Timberwolf #D7D0C7 */
+  --foreground: oklch(0.85 0.012 70);
+  --card: oklch(0.11 0.004 240);
+  --card-foreground: oklch(0.85 0.012 70);
+  --popover: oklch(0.08 0.003 240);
+  --popover-foreground: oklch(0.85 0.012 70);
+  /* Raw Umber #7A5938 */
+  --primary: oklch(0.46 0.07 60);
+  --primary-foreground: oklch(0.95 0.005 70);
+  --secondary: oklch(0.14 0.004 240);
+  --secondary-foreground: oklch(0.85 0.012 70);
+  --muted: oklch(0.16 0.004 240);
+  --muted-foreground: oklch(0.65 0.008 70);
+  /* Circuit Gold #D4AF37 */
+  --accent: oklch(0.78 0.13 85);
+  --accent-foreground: oklch(0.20 0.005 150);
+  /* Circuit Gold glow #E5C158 */
+  --accent-glow: oklch(0.83 0.14 88);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.95 0.005 70);
+  --border: oklch(0.85 0.012 70 / 10%);
+  --input: oklch(0.85 0.012 70 / 15%);
+  --ring: oklch(0.78 0.13 85);
 }
 
-::selection {
-  background-color: #D4AF37;
-  color: #2D302F;
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+  }
+
+  /* Subtle custom scrollbar */
+  ::-webkit-scrollbar               { width: 4px; }
+  ::-webkit-scrollbar-track         { background: oklch(0.08 0.003 240); }
+  ::-webkit-scrollbar-thumb         { background: oklch(0.46 0.07 60); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover   { background: oklch(0.78 0.13 85); }
 }
 
-/* Subtle custom scrollbar */
-::-webkit-scrollbar               { width: 4px; }
-::-webkit-scrollbar-track         { background: #2D302F; }
-::-webkit-scrollbar-thumb         { background: #7A5938; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover   { background: #D4AF37; }
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+@utility font-serif {
+  font-family: var(--font-serif);
+}
+@utility font-sans {
+  font-family: var(--font-sans);
+}
+@utility font-body {
+  font-family: var(--font-body);
+}
+@utility font-mono {
+  font-family: var(--font-mono);
+}

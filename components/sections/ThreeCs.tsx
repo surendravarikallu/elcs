@@ -1,216 +1,339 @@
-'use client'
+"use client";
 
-import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef } from "react";
+import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 
-/* ── Geometric crystal ────────────────────────── */
-function Crystal({ rotDeg }: { rotDeg: number }) {
-  const hex = (r: number, offset = -30) =>
-    Array.from({ length: 6 }, (_, i) => {
-      const a = ((i * 60 + offset) * Math.PI) / 180
-      return `${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r).toFixed(1)}`
-    }).join(' ')
+/**
+ * ThreeCs — Scroll-orbit reveal.
+ * Sticky stage. Closed tetrahedron pyramid in center.
+ * As scrollYProgress advances, pyramid spins and each face glows gold while
+ * the matching card spirals around it.
+ */
+
+const BLOCKS = [
+  {
+    id: "connect",
+    n: "01",
+    title: "CONNECT",
+    sub: "Network fabric",
+    body: "We bridge hardware, firmware, and the network — making integration feel native. Standardized interfaces, documented protocols, connectivity stacks built for production.",
+    metrics: ["BLE 5.4", "LoRaWAN", "MQTT", "TLS 1.3"],
+  },
+  {
+    id: "control",
+    n: "02",
+    title: "CONTROL",
+    sub: "Signal path",
+    body: "Deterministic execution from sensor to actuator. Closed-loop pipelines, real-time scheduling, predictable IO behavior under load.",
+    metrics: ["<1ms JITTER", "PID/FOC", "RTOS", "ISO 26262"],
+  },
+  {
+    id: "caresure",
+    n: "03",
+    title: "CARESURE",
+    sub: "Longevity",
+    body: "Lifecycle support that ships with the silicon. Certification trails, traceable BOMs, engineering escalation that keeps the system alive in the field.",
+    metrics: ["10YR SUPPLY", "BOM TRACE", "OTA", "RMA <72H"],
+  },
+];
+
+// Tetrahedron face tilt — angle between each side face and the vertical Y axis.
+const TILT_DEG = 32;
+
+export function ThreeCs() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
 
   return (
-    <svg viewBox="-120 -120 240 240" width="300" height="300" className="overflow-visible">
-      <defs>
-        <pattern id="eng-grid" x="-120" y="-120" width="20" height="20" patternUnits="userSpaceOnUse">
-          <line x1="0" y1="0" x2="20" y2="0" stroke="#7A5938" strokeWidth="0.3" opacity="0.3"/>
-          <line x1="0" y1="0" x2="0" y2="20" stroke="#7A5938" strokeWidth="0.3" opacity="0.3"/>
-        </pattern>
-      </defs>
-      <rect x="-120" y="-120" width="240" height="240" fill="url(#eng-grid)" />
-
-      {/* Outer hex */}
-      <polygon points={hex(100)} fill="none" stroke="#7A5938" strokeWidth="0.8" opacity="0.3"
-        style={{ transform: `rotate(${rotDeg * 0.4}deg)`, transformOrigin: 'center' }} />
-
-      {/* Spokes */}
-      {Array.from({ length: 6 }, (_, i) => {
-        const a = ((i * 60 - 30 + rotDeg * 0.4) * Math.PI) / 180
-        return <line key={i} x1="0" y1="0" x2={(Math.cos(a)*100).toFixed(1)} y2={(Math.sin(a)*100).toFixed(1)}
-          stroke="#7A5938" strokeWidth="0.4" opacity="0.2" />
-      })}
-
-      {/* Mid hex */}
-      <polygon points={hex(64, 0)} fill="none" stroke="#D4AF37" strokeWidth="0.7" opacity="0.5"
-        style={{ transform: `rotate(${rotDeg * 0.7 + 20}deg)`, transformOrigin: 'center' }} />
-
-      {/* Inner hex */}
-      <polygon points={hex(30)} fill="none" stroke="#D4AF37" strokeWidth="1.2" opacity="0.85"
-        style={{ transform: `rotate(${rotDeg * 1.3}deg)`, transformOrigin: 'center' }} />
-
-      {/* Cross hairs */}
-      <line x1="-100" y1="0" x2="100" y2="0" stroke="#7A5938" strokeWidth="0.3" opacity="0.2"/>
-      <line x1="0" y1="-100" x2="0" y2="100" stroke="#7A5938" strokeWidth="0.3" opacity="0.2"/>
-
-      {/* Center */}
-      <circle cx="0" cy="0" r="3.5" fill="#D4AF37" opacity="0.9"/>
-      <circle cx="0" cy="0" r="7"   fill="none" stroke="#D4AF37" strokeWidth="0.6" opacity="0.4"/>
-
-      <text x="0" y="115" textAnchor="middle" fill="#7A5938" fontSize="7"
-        fontFamily="monospace" letterSpacing="3" opacity="0.6">
-        #ConnectTogether
-      </text>
-    </svg>
-  )
-}
-
-/* ── The three content panels ─────────────────── */
-const SECTIONS = [
-  {
-    tag: 'Connect',
-    heading: 'CONNECT',
-    body: [
-      'We bridge the gap between complex embedded hardware and the engineers who build with it — offering plug-and-play modules, ready-to-use PCB designs, and connectivity devices that just work.',
-      'Whether you are scaling an IoT deployment or prototyping a new control system, ELCS gives you the hardware backbone to move faster.',
-    ],
-    index: 0,
-  },
-  {
-    tag: 'Control',
-    heading: 'CONTROL',
-    body: [
-      'Every module ships with complete 3D models, full schematics, reference firmware, and technical documentation — giving you total control over your integration pipeline.',
-      'We follow IPC design rules, RoHS compliance, and ESD-safe processes. Built for real-world applications where reliability is not optional.',
-    ],
-    index: 1,
-  },
-  {
-    tag: 'CareSure',
-    heading: 'CARESURE',
-    body: [
-      'From beginner makers to professional engineers, ELCS ensures every product is accessible, documented, and supported. Advanced embedded technology should not be gated behind complexity.',
-      'We aim to make smarter, safer, and more efficient systems the default — not the exception.',
-    ],
-    index: 2,
-  },
-]
-
-export default function ThreeCs() {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  })
-
-  // Crystal rotation: 0° → 240° over entire 300vh
-  const crystalRotation = useTransform(scrollYProgress, [0, 1], [0, 240])
-
-  // Right column scrolls upward: 0 → -200vh
-  const rightY = useTransform(scrollYProgress, [0, 1], ['0vh', '-200vh'])
-
-  // Per-section opacity ranges (fade in/out as each occupies the viewport)
-  const op0 = useTransform(scrollYProgress, [0, 0.08, 0.27, 0.37], [0.5, 1, 1, 0])
-  const op1 = useTransform(scrollYProgress, [0.27, 0.37, 0.63, 0.73], [0, 1, 1, 0])
-  const op2 = useTransform(scrollYProgress, [0.63, 0.73, 1],          [0, 1, 1])
-  const opacities = [op0, op1, op2]
-
-  return (
-    <section
-      ref={containerRef}
-      className="relative bg-anthracite"
-      style={{ height: '300vh' }}
-    >
-      <div className="absolute top-0 left-0 right-0 h-px bg-white/[0.06]" />
-
-      {/* ── DESKTOP: sticky 100vh frame ─────────── */}
-      <div className="hidden md:flex sticky top-0 h-screen overflow-hidden">
-
-        {/* Left: rotating crystal */}
-        <div className="w-1/2 flex items-center justify-center relative border-r border-white/[0.06]">
-          <div
-            className="absolute w-72 h-72 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)' }}
-          />
-          <motion.div style={{ rotate: crystalRotation }}>
-            <Crystal rotDeg={0} />
-          </motion.div>
-        </div>
-
-        {/* Right: translate-up driven by scroll */}
-        <div className="w-1/2 overflow-hidden">
-          <motion.div style={{ y: rightY }}>
-            {SECTIONS.map((s) => (
-              <motion.div
-                key={s.tag}
-                style={{ opacity: opacities[s.index] }}
-                className="h-screen flex flex-col justify-center px-12 max-w-xl"
-              >
-                <p
-                  className="text-circuit-gold text-[10px] tracking-[0.4em] uppercase mb-6"
-                  style={{ fontFamily: 'var(--ff-mono)' }}
-                >
-                  [{String(s.index + 1).padStart(2, '0')}] — {s.tag}
-                </p>
-                <h3
-                  className="text-timberwolf leading-none mb-8"
-                  style={{
-                    fontFamily: 'var(--ff-bebas)',
-                    fontSize: 'clamp(3.5rem, 7vw, 6rem)',
-                    letterSpacing: '0.03em',
-                  }}
-                >
-                  {s.heading}
-                </h3>
-                {s.body.map((p, i) => (
-                  <p
-                    key={i}
-                    className="text-timberwolf/60 text-base leading-relaxed mb-4 last:mb-0"
-                    style={{ fontFamily: 'var(--ff-caudex)' }}
-                  >
-                    {p}
-                  </p>
-                ))}
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </div>
-
-      {/* ── MOBILE: normal flow stack ───────────── */}
-      <div className="flex md:hidden flex-col py-20 px-6 gap-20">
-        {SECTIONS.map((s, i) => (
-          <div key={s.tag}>
-            <div className="flex justify-center mb-8 opacity-50">
-              <Crystal rotDeg={i * 80} />
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.55 }}
-            >
-              <p
-                className="text-circuit-gold text-[10px] tracking-[0.4em] uppercase mb-4"
-                style={{ fontFamily: 'var(--ff-mono)' }}
-              >
-                [{String(i + 1).padStart(2, '0')}] — {s.tag}
-              </p>
-              <h3
-                className="text-timberwolf leading-none mb-6"
-                style={{
-                  fontFamily: 'var(--ff-bebas)',
-                  fontSize: 'clamp(3rem, 12vw, 5rem)',
-                }}
-              >
-                {s.heading}
-              </h3>
-              {s.body.map((p, j) => (
-                <p
-                  key={j}
-                  className="text-timberwolf/60 text-sm leading-relaxed mb-3 last:mb-0"
-                  style={{ fontFamily: 'var(--ff-caudex)' }}
-                >
-                  {p}
-                </p>
-              ))}
-            </motion.div>
-          </div>
-        ))}
+    <section ref={ref} id="three-cs" className="relative h-[320vh] md:h-[320vh] bg-background">
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        <Stage progress={scrollYProgress} />
       </div>
     </section>
-  )
+  );
+}
+
+function Stage({ progress }: { progress: MotionValue<number> }) {
+  const rotateY = useTransform(progress, [0, 1], [-10, 360]);
+  const rotateX = useTransform(progress, [0, 0.5, 1], [-4, 0, -4]);
+
+  return (
+    <div className="relative h-full w-full flex items-center justify-center">
+      {/* blueprint grid */}
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(var(--color-foreground) 1px, transparent 1px), linear-gradient(90deg, var(--color-foreground) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+          WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+        }}
+      />
+
+      <motion.div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background: "radial-gradient(circle at 50% 55%, oklch(0.78 0.13 85 / 0.10), transparent 55%)",
+          opacity: useTransform(progress, [0, 0.5, 1], [0.4, 1, 0.6]),
+        }}
+      />
+
+      {/* progress rail (left) — hidden on mobile */}
+      <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 h-[60vh] w-px bg-foreground/10">
+        <motion.div
+          className="absolute left-0 top-0 w-px bg-accent"
+          style={{ height: useTransform(progress, [0, 1], ["0%", "100%"]) }}
+        />
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="absolute -left-[3px] w-[7px] h-[7px] border border-accent/60 bg-background"
+            style={{ top: `${(i / 2) * 100}%` }}
+          />
+        ))}
+      </div>
+
+      {/* Section title */}
+      <div className="absolute top-10 md:top-16 left-1/2 -translate-x-1/2 text-center px-4 w-full">
+        <div className="font-mono text-[10px] md:text-xs text-accent tracking-[0.4em] md:tracking-[0.5em] mb-2 md:mb-3">[ THE 3 Cs / SYSTEM-PILLARS ]</div>
+        <div className="font-display uppercase text-foreground/40 text-xs md:text-sm tracking-[0.3em] md:tracking-[0.4em]">Connect &middot; Control &middot; CareSure</div>
+      </div>
+
+      {/* Pyramid — closed tetrahedron */}
+      <div
+        className="relative w-[320px] h-[320px] md:w-[520px] md:h-[520px]"
+        style={{ perspective: 1600 }}
+      >
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            transformStyle: "preserve-3d",
+            rotateY,
+            rotateX,
+          }}
+        >
+          <Pyramid3D progress={progress} />
+        </motion.div>
+      </div>
+
+      {/* Orbiting cards */}
+      {BLOCKS.map((b, i) => (
+        <OrbitCard key={b.id} index={i} block={b} progress={progress} />
+      ))}
+
+      <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] text-foreground/30 uppercase">
+        #ConnectTogether
+      </div>
+    </div>
+  );
+}
+
+function Pyramid3D({ progress }: { progress: MotionValue<number> }) {
+  const faceA = useTransform(progress, [0, 0.16, 0.33], [0, 1, 0]);
+  const faceB = useTransform(progress, [0.33, 0.5, 0.66], [0, 1, 0]);
+  const faceC = useTransform(progress, [0.66, 0.83, 1], [0, 1, 0]);
+
+  const H = 260;
+  const halfBase = 150;
+  const tiltRad = (TILT_DEG * Math.PI) / 180;
+  const baseY = H * Math.cos(tiltRad);
+  const baseR = H * Math.sin(tiltRad);
+  const offsetY = -baseY / 2;
+
+  return (
+    <div
+      className="absolute inset-0"
+      style={{ transformStyle: "preserve-3d", transform: `translateY(${offsetY}px)` }}
+    >
+      {/* 3 side faces */}
+      <Face glow={faceA} rotateY={0} H={H} halfBase={halfBase} tilt={TILT_DEG} />
+      <Face glow={faceB} rotateY={120} H={H} halfBase={halfBase} tilt={TILT_DEG} />
+      <Face glow={faceC} rotateY={240} H={H} halfBase={halfBase} tilt={TILT_DEG} />
+
+      {/* Base ring */}
+      <div
+        className="absolute left-1/2 top-0"
+        style={{
+          transform: `translate(-50%, ${baseY}px) rotateX(90deg)`,
+          transformStyle: "preserve-3d",
+        }}
+      >
+        <svg
+          viewBox={`${-baseR * 1.4} ${-baseR * 1.4} ${baseR * 2.8} ${baseR * 2.8}`}
+          width={baseR * 2.8}
+          height={baseR * 2.8}
+          style={{ marginLeft: -baseR * 1.4, marginTop: -baseR * 1.4 }}
+        >
+          {(() => {
+            const Rc = baseR / Math.cos(Math.PI / 6);
+            const pts = [0, 1, 2]
+              .map((i) => {
+                const a = (-Math.PI / 2) + (i * 2 * Math.PI) / 3;
+                return `${Math.cos(a) * Rc},${Math.sin(a) * Rc}`;
+              })
+              .join(" ");
+            return (
+              <>
+                <polygon points={pts} fill="none" stroke="var(--color-accent)" strokeWidth="1" opacity="0.5" />
+                <circle cx="0" cy="0" r={Rc} fill="none" stroke="var(--color-foreground)" strokeWidth="0.5" opacity="0.1" />
+                {[0, 1, 2].map((i) => {
+                  const a = (-Math.PI / 2) + (i * 2 * Math.PI) / 3;
+                  return <circle key={i} cx={Math.cos(a) * Rc} cy={Math.sin(a) * Rc} r="4" fill="var(--color-accent)" />;
+                })}
+              </>
+            );
+          })()}
+        </svg>
+      </div>
+
+      {/* Apex glow dot */}
+      <div
+        className="absolute left-1/2 top-0"
+        style={{ transform: "translate(-50%, -50%)" }}
+      >
+        <div
+          className="w-2.5 h-2.5 rounded-full bg-accent-glow"
+          style={{ boxShadow: "0 0 18px var(--color-accent-glow), 0 0 36px var(--color-accent)" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Face({
+  glow,
+  rotateY,
+  H,
+  halfBase,
+  tilt,
+}: {
+  glow: MotionValue<number>;
+  rotateY: number;
+  H: number;
+  halfBase: number;
+  tilt: number;
+}) {
+  const opacity = useTransform(glow, (v) => 0.3 + v * 0.55);
+  const fillOpacity = useTransform(glow, (v) => 0.04 + v * 0.18);
+  const stroke = useTransform(glow, (v) => (v > 0.4 ? "var(--color-accent-glow)" : "var(--color-accent)"));
+  const filter = useTransform(glow, (v) =>
+    v > 0.4 ? `drop-shadow(0 0 ${8 + v * 20}px var(--color-accent-glow))` : "none",
+  );
+
+  const pad = 40;
+  const vbW = halfBase * 2 + pad * 2;
+  const vbH = H + pad * 2;
+
+  return (
+    <div
+      className="absolute left-1/2 top-0"
+      style={{
+        transform: `translate(-50%, 0) rotateY(${rotateY}deg) rotateX(${tilt}deg)`,
+        transformStyle: "preserve-3d",
+        transformOrigin: "50% 0",
+        width: vbW,
+        height: vbH,
+        marginLeft: 0,
+      }}
+    >
+      <motion.svg
+        viewBox={`${-vbW / 2} ${-pad} ${vbW} ${vbH}`}
+        width={vbW}
+        height={vbH}
+        style={{ opacity, filter, overflow: "visible", display: "block", marginLeft: -vbW / 2 + vbW / 2 }}
+      >
+        <motion.polygon
+          points={`0,0 ${halfBase},${H} ${-halfBase},${H}`}
+          fill="var(--color-accent)"
+          style={{ fillOpacity }}
+          stroke={stroke as never}
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        {/* internal traces */}
+        <line x1="0" y1="0" x2="0" y2={H} stroke="var(--color-accent)" strokeWidth="0.4" opacity="0.35" />
+        <line x1={-halfBase} y1={H} x2={halfBase * 0.5} y2={H * 0.4} stroke="var(--color-accent)" strokeWidth="0.4" opacity="0.25" />
+        <line x1={halfBase} y1={H} x2={-halfBase * 0.5} y2={H * 0.4} stroke="var(--color-accent)" strokeWidth="0.4" opacity="0.25" />
+        <circle cx={-halfBase} cy={H} r="3" fill="var(--color-accent)" />
+        <circle cx={halfBase} cy={H} r="3" fill="var(--color-accent)" />
+      </motion.svg>
+    </div>
+  );
+}
+
+function OrbitCard({
+  index,
+  block,
+  progress,
+}: {
+  index: number;
+  block: (typeof BLOCKS)[number];
+  progress: MotionValue<number>;
+}) {
+  const start = index / 3;
+  const enter = start + 0.04;
+  const hold1 = start + 0.10;
+  const hold2 = start + 0.26;
+  const exit = start + 0.33;
+
+  const xD = useTransform(progress, [start, enter, hold1, hold2, exit], [480, 260, 230, 220, -520]);
+  const yD = useTransform(progress, [start, enter, hold1, hold2, exit], [160, 30, -10, -10, -180]);
+  const xM = useTransform(progress, [start, enter, hold1, hold2, exit], [0, 60, 70, 60, -200]);
+  const yM = useTransform(progress, [start, enter, hold1, hold2, exit], [260, 180, 170, 170, -120]);
+
+  const opacity = useTransform(progress, [start, enter - 0.01, enter, hold2, exit], [0, 0.2, 1, 1, 0]);
+  const scale = useTransform(progress, [start, enter, hold2, exit], [0.85, 1, 1, 0.85]);
+  const rotate = useTransform(progress, [start, exit], [6, -6]);
+
+  return (
+    <>
+      {/* Desktop */}
+      <motion.div
+        className="hidden md:block absolute left-1/2 top-1/2 pointer-events-none z-10"
+        style={{ x: xD, y: yD, opacity, scale, rotate, translateX: "-50%", translateY: "-50%" }}
+      >
+        <CardBody block={block} wide />
+      </motion.div>
+      {/* Mobile */}
+      <motion.div
+        className="md:hidden absolute left-1/2 top-1/2 pointer-events-none z-10"
+        style={{ x: xM, y: yM, opacity, scale, rotate, translateX: "-50%", translateY: "-50%" }}
+      >
+        <CardBody block={block} />
+      </motion.div>
+    </>
+  );
+}
+
+function CardBody({ block, wide = false }: { block: (typeof BLOCKS)[number]; wide?: boolean }) {
+  return (
+    <div
+      className={`relative ${wide ? "w-[360px] p-7" : "w-[280px] p-5"} bg-card/85 backdrop-blur-md border border-accent/30`}
+      style={{ boxShadow: "0 20px 60px -20px oklch(0.78 0.13 85 / 0.35)" }}
+    >
+      <span className="absolute -top-px -left-px w-4 h-4 border-t border-l border-accent" />
+      <span className="absolute -top-px -right-px w-4 h-4 border-t border-r border-accent" />
+      <span className="absolute -bottom-px -left-px w-4 h-4 border-b border-l border-accent" />
+      <span className="absolute -bottom-px -right-px w-4 h-4 border-b border-r border-accent" />
+
+      <div className="flex items-center justify-between mb-3">
+        <div className="font-mono text-[10px] tracking-[0.4em] text-accent">[ {block.n} ]</div>
+        <div className="font-mono text-[9px] md:text-[10px] tracking-[0.3em] text-foreground/40 uppercase">{block.sub}</div>
+      </div>
+      <h3 className={`font-display uppercase ${wide ? "text-5xl" : "text-3xl"} text-foreground font-light leading-none mb-3`}>
+        {block.title}
+      </h3>
+      <p className={`font-body ${wide ? "text-sm" : "text-xs"} text-foreground/70 leading-relaxed mb-4`}>{block.body}</p>
+      <div className="flex flex-wrap gap-1.5 pt-3 border-t border-foreground/10">
+        {block.metrics.map((m) => (
+          <span key={m} className="font-mono text-[9px] tracking-[0.2em] px-2 py-1 border border-accent/30 text-accent/90">
+            {m}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
 }

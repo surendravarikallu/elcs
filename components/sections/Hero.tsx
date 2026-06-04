@@ -1,283 +1,160 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+
+// Next.js: plain public URL strings instead of Vite asset imports
+const pcbImg = "/images/hero/hero-custom-pcbs.jpg";
+const embeddedImg = "/images/hero/hero-embedded-modules.jpg";
+const connectImg = "/images/hero/hero-connectivity.jpg";
+const controlImg = "/images/hero/hero-control.jpg";
+const firmwareImg = "/images/hero/hero-firmware.jpg";
 
 const COLUMNS = [
-  {
-    id: 1,
-    image: '/images/hero/Custom PCBs.png',
-    heading: 'CUSTOM PCB FABRICATION',
-    subtext: 'High-density multi-layer routing, precision impedance control, and rapid manufacturing prototyping rules.',
-    tag: '[IPC-CLASS-3]',
-    accent: '#2a1f10',
-  },
-  {
-    id: 2,
-    image: '/images/hero/Embedded Modules.png',
-    heading: 'CORE SYSTEM MODULES',
-    subtext: 'Compact processing solutions and plug-and-play architecture for faster device scaling.',
-    tag: '[ARM-ARCHITECTURE]',
-    accent: '#0f1a2e',
-  },
-  {
-    id: 3,
-    image: '/images/hero/Connectivity Devices.png',
-    heading: 'IOT CONNECTIVITY',
-    subtext: 'Secure, low-latency communication frameworks bridging hardware interfaces and networks.',
-    tag: '[WIRELESS-PROTOCOLS]',
-    accent: '#0a1f1a',
-  },
-  {
-    id: 4,
-    image: '/images/hero/Control Hardware.png',
-    heading: 'AUTOMATION CONTROL',
-    subtext: 'Industrial-grade execution environments designed for mission-critical deterministic systems.',
-    tag: '[DETERMINISTIC-IO]',
-    accent: '#1a1a1a',
-  },
-  {
-    id: 5,
-    image: '/images/hero/Firmware Architectur.png',
-    heading: 'FIRMWARE ENGINEERING',
-    subtext: 'Bare-metal optimization and clean real-time operational device orchestration.',
-    tag: '[RTOS-KERNELS]',
-    accent: '#1f0f0a',
-  },
-]
+  { img: pcbImg, heading: "CUSTOM PCB FABRICATION", sub: "High-density multi-layer routing, precision impedance control, and rapid manufacturing prototyping rules.", tag: "[IPC-CLASS-3]" },
+  { img: embeddedImg, heading: "CORE SYSTEM MODULES", sub: "Compact processing solutions and plug-and-play architecture for faster device scaling.", tag: "[ARM-ARCHITECTURE]" },
+  { img: connectImg, heading: "IOT CONNECTIVITY", sub: "Secure, low-latency communication frameworks bridging hardware interfaces and networks.", tag: "[WIRELESS-PROTOCOLS]" },
+  { img: controlImg, heading: "AUTOMATION CONTROL", sub: "Industrial-grade execution environments designed for mission-critical deterministic systems.", tag: "[DETERMINISTIC-IO]" },
+  { img: firmwareImg, heading: "FIRMWARE ENGINEERING", sub: "Bare-metal optimization and clean real-time operational device orchestration.", tag: "[RTOS-KERNELS]" },
+];
 
-export default function Hero() {
-  const [hoveredId, setHoveredId]   = useState<number | null>(null)
-  const [expandedId, setExpandedId] = useState<number | null>(null)
-  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set())
+export function HeroAccordion({ ready }: { ready: boolean }) {
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [taken, setTaken] = useState<number | null>(null);
+  const [activeMobile, setActiveMobile] = useState<number>(0);
+  const [scrolled, setScrolled] = useState(false);
 
-  const getWidth = (id: number) => {
-    if (expandedId !== null) return expandedId === id ? '100%' : '0%'
-    if (hoveredId !== null)  return hoveredId  === id ? '38%'  : '15.5%'
-    return '20%'
-  }
-
-  const handleClick = (id: number) => {
-    setExpandedId(prev => (prev === id ? null : id))
-  }
-
-  const handleImageError = (id: number) => {
-    setImageErrors(prev => new Set(prev).add(id))
-  }
+  useEffect(() => {
+    const onScroll = () => { if (window.scrollY > 40) setScrolled(true); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <section className="relative w-full overflow-hidden bg-anthracite">
-
-      {/* ── Desktop: Horizontal Accordion (≥768px) ── */}
-      <div
-        className="hidden md:flex h-[85vh]"
-        onMouseLeave={() => { if (!expandedId) setHoveredId(null) }}
+    <section id="top" className="relative pt-24 md:pt-28 px-0">
+      {/* Desktop */}
+      <motion.div
+        className="hidden md:flex w-full h-[78vh] lg:h-[85vh] overflow-hidden"
+        initial="hidden"
+        animate={ready ? "show" : "hidden"}
+        variants={{ show: { transition: { staggerChildren: 0.1 } } }}
       >
-        {COLUMNS.map(col => {
-          const isActive   = hoveredId === col.id || expandedId === col.id
-          const isExpanded = expandedId === col.id
-          const imgMissing = imageErrors.has(col.id)
+        {COLUMNS.map((c, i) => {
+          const isTaken = taken === i;
+          const anyTaken = taken !== null;
+          const isHovered = hovered === i;
+          const flex = anyTaken
+            ? (isTaken ? 100 : 0)
+            : hovered === null
+              ? 1
+              : (isHovered ? 4 : 1);
 
           return (
             <motion.div
-              key={col.id}
-              className="relative overflow-hidden cursor-pointer flex-shrink-0"
-              animate={{ width: getWidth(col.id) }}
-              transition={{ type: 'spring', stiffness: 180, damping: 28 }}
-              onMouseEnter={() => { if (!expandedId) setHoveredId(col.id) }}
-              onClick={() => handleClick(col.id)}
+              key={i}
+              variants={{ hidden: { opacity: 0, scaleY: 0.95 }, show: { opacity: 1, scaleY: 1, transition: { duration: 0.8 } } }}
+              onMouseEnter={() => !anyTaken && setHovered(i)}
+              onMouseLeave={() => !anyTaken && setHovered(null)}
+              onClick={() => setTaken(i)}
+              animate={{ flexGrow: flex, flexBasis: 0 }}
+              transition={{ type: "spring", stiffness: 120, damping: 22 }}
+              className="relative h-full border-r border-foreground/5 last:border-r-0 overflow-hidden cursor-pointer min-w-0"
+              style={{ flexShrink: 0 }}
             >
-              {/* Background image or fallback */}
-              {!imgMissing ? (
-                <img
-                  src={col.image}
-                  alt={col.heading}
-                  onError={() => handleImageError(col.id)}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{
-                    filter: isActive ? 'grayscale(0%) brightness(0.55)' : 'grayscale(80%) brightness(0.3)',
-                    transition: 'filter 0.5s ease',
-                  }}
-                />
-              ) : (
-                /* Fallback gradient tile */
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: `linear-gradient(160deg, ${col.accent} 0%, #2D302F 100%)`,
-                    opacity: isActive ? 0.9 : 0.5,
-                    transition: 'opacity 0.5s ease',
-                  }}
-                />
+              <motion.img
+                src={c.img}
+                alt={c.heading}
+                className="absolute inset-0 w-full h-full object-cover"
+                animate={{
+                  filter: isHovered || isTaken ? "grayscale(0) brightness(0.85)" : "grayscale(0.8) brightness(0.45)",
+                  scale: isHovered || isTaken ? 1.04 : 1,
+                }}
+                transition={{ duration: 0.6 }}
+                loading={i === 0 ? "eager" : "lazy"}
+                width={800} height={1024}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+              {!isHovered && !isTaken && (
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 [writing-mode:vertical-rl] rotate-180 font-mono text-xs tracking-[0.3em] text-foreground/70 uppercase whitespace-nowrap">
+                  {c.heading.split(" ")[0]}
+                </div>
               )}
-
-              {/* Dark overlay vignette */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-              {/* Thin right border divider */}
-              <div className="absolute top-0 right-0 bottom-0 w-px bg-white/5" />
-
-              {/* Text — slides up on hover */}
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 p-8 flex flex-col gap-3"
-                animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 20 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-              >
-                {/* Mono tag */}
-                <span
-                  className="text-circuit-gold text-[10px] tracking-[0.3em]"
-                  style={{ fontFamily: 'var(--ff-mono)' }}
-                >
-                  {col.tag}
-                </span>
-
-                {/* Heading */}
-                <h2
-                  className="text-timberwolf leading-tight"
-                  style={{
-                    fontFamily: 'var(--ff-outfit)',
-                    fontSize: isExpanded ? 'clamp(2rem, 3.5vw, 3.2rem)' : 'clamp(1.2rem, 2vw, 1.8rem)',
-                    fontWeight: 700,
-                    letterSpacing: '0.04em',
-                    transition: 'font-size 0.4s ease',
-                  }}
-                >
-                  {col.heading}
-                </h2>
-
-                {/* Subtext — only when expanded */}
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.p
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.3, delay: 0.1 }}
-                      className="text-timberwolf/70 text-sm leading-relaxed max-w-md"
-                      style={{ fontFamily: 'var(--ff-nunito)' }}
-                    >
-                      {col.subtext}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-
-              {/* Back arrow — visible only when this column is expanded */}
               <AnimatePresence>
-                {isExpanded && (
-                  <motion.button
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -12 }}
-                    transition={{ duration: 0.25, delay: 0.15 }}
-                    onClick={e => { e.stopPropagation(); setExpandedId(null); setHoveredId(null) }}
-                    className="absolute top-8 left-8 flex items-center gap-2 text-timberwolf/60
-                               hover:text-circuit-gold transition-colors duration-200 group"
+                {(isHovered || isTaken) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 14 }}
+                    transition={{ duration: 0.35 }}
+                    className="absolute bottom-0 left-0 right-0 p-8 md:p-10"
                   >
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path d="M12 4L6 10L12 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <span
-                      className="text-[10px] tracking-[0.2em] uppercase"
-                      style={{ fontFamily: 'var(--ff-mono)' }}
-                    >
-                      Back
-                    </span>
-                  </motion.button>
+                    <div className="font-mono text-xs text-accent tracking-[0.25em] mb-3">{c.tag}</div>
+                    <h2 className="font-sans font-light text-2xl md:text-4xl text-foreground uppercase tracking-tight max-w-2xl">{c.heading}</h2>
+                    <p className="font-body text-foreground/70 mt-3 max-w-xl text-sm md:text-base">{c.sub}</p>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </motion.div>
-          )
+          );
         })}
-      </div>
+      </motion.div>
 
-      {/* ── Mobile: Vertical Stack Accordion (<768px) ── */}
-      <div className="flex md:hidden flex-col">
-        {COLUMNS.map(col => {
-          const isOpen     = expandedId === col.id
-          const imgMissing = imageErrors.has(col.id)
+      {/* Back arrow when taken */}
+      <AnimatePresence>
+        {taken !== null && (
+          <motion.button
+            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
+            onClick={(e) => { e.stopPropagation(); setTaken(null); }}
+            className="hidden md:flex absolute top-32 left-8 z-10 items-center gap-2 font-mono text-xs text-foreground/80 hover:text-accent transition-colors uppercase tracking-widest cursor-pointer"
+          >
+            <span>←</span> Back
+          </motion.button>
+        )}
+      </AnimatePresence>
 
+      {/* Mobile vertical accordion */}
+      <div className="md:hidden flex flex-col w-full">
+        {COLUMNS.map((c, i) => {
+          const active = activeMobile === i;
           return (
             <motion.div
-              key={col.id}
-              className="relative overflow-hidden cursor-pointer"
-              animate={{ height: isOpen ? '50vh' : '72px' }}
-              transition={{ type: 'spring', stiffness: 200, damping: 28 }}
-              onClick={() => setExpandedId(prev => prev === col.id ? null : col.id)}
+              key={i}
+              onClick={() => setActiveMobile(i)}
+              animate={{ height: active ? "55vh" : "11vh" }}
+              transition={{ type: "spring", stiffness: 120, damping: 22 }}
+              className={`relative overflow-hidden border-b border-foreground/5 ${active ? "border-l-2 border-l-accent" : ""}`}
             >
-              {/* BG */}
-              {!imgMissing ? (
-                <img
-                  src={col.image}
-                  alt={col.heading}
-                  onError={() => handleImageError(col.id)}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ filter: isOpen ? 'grayscale(0%) brightness(0.5)' : 'grayscale(70%) brightness(0.25)', transition: 'filter 0.4s' }}
-                />
-              ) : (
-                <div
-                  className="absolute inset-0"
-                  style={{ background: `linear-gradient(160deg, ${col.accent} 0%, #2D302F 100%)` }}
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-              {/* Content */}
-              <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col gap-2">
-                <span
-                  className="text-circuit-gold text-[9px] tracking-[0.3em]"
-                  style={{ fontFamily: 'var(--ff-mono)' }}
-                >
-                  {col.tag}
-                </span>
-                <h2
-                  className="text-timberwolf font-bold text-lg leading-tight"
-                  style={{ fontFamily: 'var(--ff-outfit)' }}
-                >
-                  {col.heading}
-                </h2>
-                <AnimatePresence>
-                  {isOpen && (
-                    <motion.p
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="text-timberwolf/70 text-sm leading-relaxed"
-                      style={{ fontFamily: 'var(--ff-nunito)' }}
-                    >
-                      {col.subtext}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
+              <img src={c.img} alt={c.heading} className={`absolute inset-0 w-full h-full object-cover ${active ? "brightness-75" : "brightness-50 grayscale"}`} loading="lazy" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <div className="font-mono text-[10px] text-accent tracking-[0.25em] mb-1">{c.tag}</div>
+                <h2 className="font-sans font-light text-lg text-foreground uppercase">{c.heading}</h2>
+                {active && <p className="font-body text-foreground/70 mt-2 text-xs">{c.sub}</p>}
               </div>
-
-              {/* Bottom border */}
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-white/5" />
             </motion.div>
-          )
+          );
         })}
       </div>
 
-      {/* Scroll hint */}
-      <motion.div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 0.6 }}
-      >
-        <span
-          className="text-timberwolf/30 text-[9px] tracking-[0.4em] uppercase"
-          style={{ fontFamily: 'var(--ff-mono)' }}
-        >
-          Scroll
-        </span>
-        <motion.div
-          className="w-px h-8 bg-gradient-to-b from-timberwolf/30 to-transparent"
-          animate={{ scaleY: [1, 0.4, 1], opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      </motion.div>
+      {/* Scroll cue */}
+      <AnimatePresence>
+        {ready && !scrolled && taken === null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 1.2, duration: 0.4 }}
+            className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 font-mono text-[10px] tracking-[0.4em] text-foreground/50 uppercase z-10"
+          >
+            <span>Scroll</span>
+            <motion.span
+              animate={{ y: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+              className="block w-px h-8 bg-accent/60"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
-  )
+  );
 }
