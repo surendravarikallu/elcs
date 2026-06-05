@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Product } from "@/types/database";
 
@@ -203,10 +204,16 @@ export function ProductForm({ categories, product }: Props) {
               </button>
             </div>
             {imageUrl && (
-              <div className="relative inline-block">
-                <img src={imageUrl} alt="preview" className="h-24 w-auto border border-foreground/10 object-contain bg-card" />
+              <div className="relative w-32 h-24 border border-foreground/10 bg-card">
+                <Image
+                  src={imageUrl}
+                  alt="preview"
+                  fill
+                  sizes="128px"
+                  className="object-contain"
+                />
                 <button type="button" onClick={() => setImageUrl("")}
-                  className="absolute -top-2 -right-2 w-5 h-5 bg-background border border-foreground/20 text-foreground/50 hover:text-destructive text-[10px] flex items-center justify-center transition-colors">✕</button>
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-background border border-foreground/20 text-foreground/50 hover:text-destructive text-[10px] flex items-center justify-center transition-colors z-10">✕</button>
               </div>
             )}
           </Field>

@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import Image from "next/image";
+
+const MotionImage = motion(Image);
 
 // Next.js: plain public URL strings instead of Vite asset imports
 const pcbImg = "/images/hero/hero-custom-pcbs.jpg";
@@ -61,17 +64,18 @@ export function HeroAccordion({ ready }: { ready: boolean }) {
               className="relative h-full border-r border-foreground/5 last:border-r-0 overflow-hidden cursor-pointer min-w-0"
               style={{ flexShrink: 0 }}
             >
-              <motion.img
+              <MotionImage
                 src={c.img}
                 alt={c.heading}
-                className="absolute inset-0 w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 20vw"
+                className="object-cover"
                 animate={{
                   filter: isHovered || isTaken ? "grayscale(0) brightness(0.85)" : "grayscale(0.8) brightness(0.45)",
                   scale: isHovered || isTaken ? 1.04 : 1,
                 }}
                 transition={{ duration: 0.6 }}
-                loading={i === 0 ? "eager" : "lazy"}
-                width={800} height={1024}
+                priority={i === 0}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
               {/* Liquid glass shimmer on hover/taken */}
@@ -136,7 +140,14 @@ export function HeroAccordion({ ready }: { ready: boolean }) {
               transition={{ type: "spring", stiffness: 120, damping: 22 }}
               className={`relative overflow-hidden border-b border-foreground/5 ${active ? "border-l-2 border-l-accent" : ""}`}
             >
-              <img src={c.img} alt={c.heading} className={`absolute inset-0 w-full h-full object-cover ${active ? "brightness-75" : "brightness-50 grayscale"}`} loading="lazy" />
+              <Image
+                src={c.img}
+                alt={c.heading}
+                fill
+                sizes="100vw"
+                className={`object-cover ${active ? "brightness-75" : "brightness-50 grayscale"}`}
+                loading="lazy"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <div className="font-mono text-[10px] text-accent tracking-[0.25em] mb-1">{c.tag}</div>

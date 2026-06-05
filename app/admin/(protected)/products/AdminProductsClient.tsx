@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { Product, Category } from "@/types/database";
 
@@ -74,9 +75,9 @@ export function AdminProductsClient({
             >
               {/* ── Mobile card ── */}
               <div className="md:hidden flex items-start gap-3 px-4 py-3">
-                <div className="w-10 h-9 bg-secondary border border-foreground/10 overflow-hidden shrink-0 mt-0.5">
+                <div className="w-10 h-9 relative bg-secondary border border-foreground/10 overflow-hidden shrink-0 mt-0.5">
                   {p.image_url
-                    ? <img src={p.image_url} alt="" className="w-full h-full object-cover" />
+                    ? <Image src={p.image_url} alt="" fill sizes="40px" className="object-cover" />
                     : <div className="w-full h-full flex items-center justify-center text-foreground/20 text-xs">—</div>
                   }
                 </div>
@@ -111,9 +112,9 @@ export function AdminProductsClient({
               {/* ── Desktop table row ── */}
               <div className="hidden md:grid grid-cols-[3rem_1fr_7rem_3rem_6rem_8rem] gap-4 items-center px-5 py-4">
                 {/* Thumbnail */}
-                <div className="w-12 h-10 bg-secondary border border-foreground/10 overflow-hidden shrink-0">
+                <div className="w-12 h-10 relative bg-secondary border border-foreground/10 overflow-hidden shrink-0">
                   {p.image_url
-                    ? <img src={p.image_url} alt="" className="w-full h-full object-cover" />
+                    ? <Image src={p.image_url} alt="" fill sizes="48px" className="object-cover" />
                     : <div className="w-full h-full flex items-center justify-center text-foreground/20 text-xs">—</div>
                   }
                 </div>

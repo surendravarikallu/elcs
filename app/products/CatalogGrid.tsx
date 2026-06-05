@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import Image from "next/image";
 import { ProductDetailsDrawer } from "@/components/ProductDetailsDrawer";
 import { TactileAudio } from "@/components/ittalk/TactileAudio";
 import type { Category, Product } from "@/types/database";
@@ -324,11 +325,13 @@ export function CatalogGrid({
                   >
                     <div className="w-full h-full bg-card rounded-[2.5rem] rounded-br-[7.5rem] overflow-hidden border border-border/20 shadow-lg relative group">
                       {product.image_url ? (
-                        <img
+                        <Image
                           src={product.image_url}
                           alt={product.name}
+                          fill
                           draggable={false}
-                          className="w-full h-full object-cover grayscale-[15%] group-hover:grayscale-0 transition-all duration-700 select-none pointer-events-none"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover grayscale-[15%] group-hover:grayscale-0 transition-all duration-700 select-none pointer-events-none"
                           loading="lazy"
                         />
                       ) : (

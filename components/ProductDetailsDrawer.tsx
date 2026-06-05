@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion } from "motion/react";
+import Image from "next/image";
 import { TactileAudio } from "./ittalk/TactileAudio";
 import { submitEnquiry } from "@/app/actions/enquiry";
 import type { Product } from "@/types/database";
@@ -242,10 +243,12 @@ if __name__ == "__main__":
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-start">
             <div className="sm:col-span-5 aspect-square bg-background/50 border border-border overflow-hidden relative">
               {product.image_url ? (
-                <img
+                <Image
                   src={product.image_url}
                   alt={product.name}
-                  className="w-full h-full object-cover grayscale-[20%]"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 20vw"
+                  className="object-cover grayscale-[20%]"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center opacity-30">
