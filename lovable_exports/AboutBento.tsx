@@ -1,7 +1,5 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from "motion/react";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 
 /**
  * AboutBento — Obsidian micro-workshop.
@@ -55,8 +53,8 @@ export function AboutBento() {
 
   // Glow halo
   const haloBg = useTransform(
-    [sx, sy] as [MotionValue<number>, MotionValue<number>],
-    ([x, y]) =>
+    [sx, sy] as any,
+    ([x, y]: number[]) =>
       `radial-gradient(180px circle at ${x}px ${y}px, oklch(0.78 0.13 85 / 0.18), transparent 70%)`,
   );
 
@@ -162,7 +160,7 @@ export function AboutBento() {
         <motion.div
           aria-hidden
           className="pointer-events-none absolute inset-0 hidden md:block"
-          style={{ background: haloBg as unknown as string, mixBlendMode: "screen" }}
+          style={{ background: haloBg as any, mixBlendMode: "screen" }}
         />
 
         {/* Vignette */}
@@ -171,55 +169,37 @@ export function AboutBento() {
         }} />
 
         {/* Content card */}
-        <div className="relative px-4 sm:px-6 md:px-12 py-24 md:py-36 max-w-6xl mx-auto">
+        <div className="relative px-6 md:px-12 py-28 md:py-44 max-w-5xl mx-auto">
           <div className="relative">
             {/* corner ticks */}
             <Corner pos="tl" /><Corner pos="tr" /><Corner pos="bl" /><Corner pos="br" />
 
-            <div className="px-5 sm:px-8 md:px-14 py-10 md:py-14">
-              <div className="font-mono text-xs text-accent tracking-[0.4em] mb-6 md:mb-8">
+            <div className="px-6 md:px-14 py-10 md:py-16">
+              <div className="font-mono text-xs text-accent tracking-[0.4em] mb-8">
                 [ ABOUT / NODE.001 ]
               </div>
+              <h2 className="font-display uppercase text-4xl md:text-6xl lg:text-7xl leading-[0.95] text-foreground font-light">
+                We build the <span className="text-accent italic font-serif">silent</span> hardware<br />
+                behind loud ideas.
+              </h2>
+              <p className="font-serif text-lg md:text-2xl text-foreground/75 leading-relaxed mt-8 max-w-3xl">
+                ELCS designs and manufactures future-ready embedded modules, control systems, and connectivity devices — precision-engineered, certified to standard, and ready to ship.
+              </p>
+              <p className="font-body text-foreground/55 mt-6 max-w-2xl">
+                Plug-and-play modules, production-grade PCBs, and custom embedded solutions for engineers, makers, and industries that move fast.
+              </p>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-                {/* Left column: main descriptions */}
-                <div className="lg:col-span-7 space-y-5">
-                  <h2 className="font-display uppercase text-4xl md:text-5xl lg:text-6xl leading-[0.95] text-foreground font-light mb-6">
-                    ABOUT ELCS
-                  </h2>
-                  <p className="font-serif text-base md:text-lg lg:text-xl text-foreground/85 leading-relaxed">
-                    At ELCS, we design and manufacture future-ready embedded modules, control systems, and connectivity devices built with precision and quality.
-                  </p>
-                  <p className="font-body text-xs md:text-sm text-foreground/70 leading-relaxed">
-                    Our mission is to simplify hardware development by offering plug-and-play modules, ready-to-use PCB designs, and custom embedded solutions that help engineers, makers, and industries innovate faster.
-                  </p>
-                  <p className="font-body text-xs md:text-sm text-foreground/55 leading-relaxed">
-                    Every product comes with complete 3D models, technical documentation, and full support files, making integration easy for everyone from beginners to professionals. At ELCS, we aim to make advanced embedded technology accessible, allowing everyone to build smarter, safer, and more efficient systems.
-                  </p>
-                </div>
-
-                {/* Right column: Standards list */}
-                <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="border border-accent/20 bg-background/50 backdrop-blur-sm p-5 space-y-5">
-                    <div className="font-mono text-[10px] text-accent tracking-[0.3em] uppercase border-b border-foreground/10 pb-3">
-                      [ INDUSTRY STANDARDS ]
-                    </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {STANDARDS.map((s, idx) => (
-                        <div key={idx} className="space-y-1 p-3 border border-foreground/5 bg-foreground/[0.01] hover:border-accent/20 transition-colors duration-300">
-                          <div className="font-mono text-[9px] text-accent">[ 0{idx + 1} ]</div>
-                          <div className="font-mono text-xs font-semibold text-foreground uppercase tracking-wider">{s.title}</div>
-                          <p className="font-body text-[10px] text-foreground/50 leading-normal">{s.desc}</p>
-                        </div>
-                      ))}
-                    </div>
+              <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8 border-t border-foreground/10 pt-10">
+                {STATS.map((s) => (
+                  <div key={s.k}>
+                    <div className="font-display text-3xl md:text-4xl text-accent">{s.v}</div>
+                    <div className="font-mono text-[10px] tracking-[0.25em] text-foreground/50 uppercase mt-2">{s.k}</div>
                   </div>
-                </div>
+                ))}
               </div>
 
-              <div className="font-mono text-[9px] md:text-[10px] tracking-[0.3em] text-foreground/30 uppercase mt-12 flex items-center gap-3">
-                <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
+              <div className="font-mono text-[10px] tracking-[0.3em] text-foreground/40 uppercase mt-12 flex items-center gap-3">
+                <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
                 MOVE CURSOR — TRACE THE BOARD
               </div>
             </div>
@@ -240,11 +220,11 @@ function Corner({ pos }: { pos: "tl" | "tr" | "bl" | "br" }) {
   return <span className={`absolute w-5 h-5 border-accent ${map[pos]}`} aria-hidden />;
 }
 
-const STANDARDS = [
-  { title: "IPC Design Rules", desc: "Rigorous layout guidelines for multi-layer routing." },
-  { title: "RoHS Compliant", desc: "Eco-friendly, lead-free components and assembly." },
-  { title: "ESD-Safe Assembly", desc: "Electrostatic discharge protection at every stage." },
-  { title: "Real-world Robust", desc: "Ensured performance in demanding applications." }
+const STATS = [
+  { k: "MODULES SHIPPED", v: "12K+" },
+  { k: "DESIGN ITERATIONS", v: "350" },
+  { k: "COMPLIANCE", v: "RoHS" },
+  { k: "UPTIME TARGET", v: "99.9" },
 ];
 
 // PCB board geometry — coordinates in 1200x800 viewBox

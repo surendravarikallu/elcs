@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef } from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 
@@ -8,6 +6,10 @@ import { motion, useScroll, useTransform, type MotionValue } from "motion/react"
  * Sticky stage. Closed tetrahedron pyramid in center.
  * As scrollYProgress advances, pyramid spins and each face glows gold while
  * the matching card spirals around it.
+ *
+ * Geometry: each side face has its apex at the local origin (0,0,0).
+ * Faces are rotated around Y (0/120/240) and tilted inward around X by
+ * `TILT_DEG` so all three apexes converge at the same top point.
  */
 
 const BLOCKS = [
@@ -38,6 +40,7 @@ const BLOCKS = [
 ];
 
 // Tetrahedron face tilt — angle between each side face and the vertical Y axis.
+// ~35.26° is geometric for a regular tetrahedron; we use 32° for a slightly taller silhouette.
 const TILT_DEG = 32;
 
 export function ThreeCs() {
@@ -45,8 +48,7 @@ export function ThreeCs() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
 
   return (
-    // 360vh = 120vh per card — gives enough scroll time to see each one fully
-    <section ref={ref} id="three-cs" className="relative h-[360vh] bg-background">
+    <section ref={ref} id="three-cs" className="relative h-[320vh] md:h-[320vh] bg-background">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         <Stage progress={scrollYProgress} />
       </div>
@@ -56,6 +58,7 @@ export function ThreeCs() {
 
 function Stage({ progress }: { progress: MotionValue<number> }) {
   const rotateY = useTransform(progress, [0, 1], [-10, 360]);
+  // very subtle vertical wobble — keep apex visible
   const rotateX = useTransform(progress, [0, 0.5, 1], [-4, 0, -4]);
 
   return (
@@ -105,7 +108,7 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
 
       {/* Pyramid — closed tetrahedron */}
       <div
-        className="relative w-[320px] h-[320px] md:w-[520px] md:h-[520px] [--pyramid-offset-y:-5.4px] md:[--pyramid-offset-y:94.6px]"
+        className="relative w-[320px] h-[320px] md:w-[520px] md:h-[520px]"
         style={{ perspective: 1600 }}
       >
         <motion.div
@@ -117,25 +120,13 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
           }}
         >
           <Pyramid3D progress={progress} />
-          {/* Orbiting cards inside the 3D preserve-3d container */}
-          {BLOCKS.map((b, i) => (
-            <OrbitCard key={b.id} index={i} block={b} rotateY={rotateY} />
-          ))}
         </motion.div>
       </div>
 
-      {/* scroll prompt — fades out once user has scrolled in */}
-      <motion.div
-        className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
-        style={{ opacity: useTransform(progress, [0, 0.08], [1, 0]) }}
-      >
-        <span className="font-mono text-[9px] tracking-[0.4em] text-foreground/40 uppercase">scroll</span>
-        <motion.span
-          className="block w-px h-7 bg-accent/50"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
-        />
-      </motion.div>
+      {/* Orbiting cards */}
+      {BLOCKS.map((b, i) => (
+        <OrbitCard key={b.id} index={i} block={b} progress={progress} />
+      ))}
 
       <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] text-foreground/30 uppercase">
         #ConnectTogether
@@ -144,29 +135,42 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
   );
 }
 
+/**
+ * Closed tetrahedron. Each side face triangle has its APEX at local (0,0,0).
+ * We rotate around Y (0 / 120 / 240) and tilt inward around X by TILT_DEG so
+ * all three apex points coincide at the origin. The base ring is drawn
+ * separately at the bottom of the pyramid.
+ *
+ * H = face slant height in px (apex → base midpoint distance along the face).
+ * After rotateX(TILT), apex stays at origin; base midpoint goes to
+ *   (0, H·cos(TILT), H·sin(TILT))
+ * which lands at the bottom of the pyramid and at radius H·sin(TILT) from Y axis.
+ */
 function Pyramid3D({ progress }: { progress: MotionValue<number> }) {
-  // Each face peaks exactly when its orbit card is held centre-screen
-  const faceA = useTransform(progress, [0, 0.15, 0.30, 1], [0, 1, 0, 0]);
-  const faceB = useTransform(progress, [0, 0.30, 0.48, 0.63, 1], [0, 0, 1, 0, 0]);
-  const faceC = useTransform(progress, [0, 0.63, 0.81, 1], [0, 0, 1, 0]);
+  const faceA = useTransform(progress, [0, 0.16, 0.33], [0, 1, 0]);
+  const faceB = useTransform(progress, [0.33, 0.5, 0.66], [0, 1, 0]);
+  const faceC = useTransform(progress, [0.66, 0.83, 1], [0, 1, 0]);
 
-  const H = 260;
-  const halfBase = 150;
+  const H = 260; // slant height (face triangle height in px)
+  const halfBase = 150; // half base edge in px
   const tiltRad = (TILT_DEG * Math.PI) / 180;
-  const baseY = H * Math.cos(tiltRad);
-  const baseR = H * Math.sin(tiltRad);
+  const baseY = H * Math.cos(tiltRad); // vertical drop from apex
+  const baseR = H * Math.sin(tiltRad); // radial distance of base midpoint from axis
+
+  // Vertically center the pyramid on the perspective box
+  const offsetY = -baseY / 2;
 
   return (
     <div
       className="absolute inset-0"
-      style={{ transformStyle: "preserve-3d", transform: "translateY(var(--pyramid-offset-y, 94.6px))" }}
+      style={{ transformStyle: "preserve-3d", transform: `translateY(${offsetY}px)` }}
     >
-      {/* 3 side faces */}
+      {/* 3 side faces — apex at origin, tilted outward at the base */}
       <Face glow={faceA} rotateY={0} H={H} halfBase={halfBase} tilt={TILT_DEG} />
       <Face glow={faceB} rotateY={120} H={H} halfBase={halfBase} tilt={TILT_DEG} />
       <Face glow={faceC} rotateY={240} H={H} halfBase={halfBase} tilt={TILT_DEG} />
 
-      {/* Base ring */}
+      {/* Base ring — equilateral triangle at the bottom, plus circumscribed circle */}
       <div
         className="absolute left-1/2 top-0"
         style={{
@@ -180,6 +184,10 @@ function Pyramid3D({ progress }: { progress: MotionValue<number> }) {
           height={baseR * 2.8}
           style={{ marginLeft: -baseR * 1.4, marginTop: -baseR * 1.4 }}
         >
+          {/* equilateral triangle: vertices at angles -90, 30, 150 from center, radius = baseR (distance from axis to base midpoints)
+              But base corners are at vertices of the triangle — they sit at radius = halfBase / sin(60°) from axis when projected.
+              Simpler: place 3 base corners at radius = R_corner; for our geometry the base midpoint of each face sits at distance baseR
+              from axis, and corners are baseR / cos(30°). */}
           {(() => {
             const Rc = baseR / Math.cos(Math.PI / 6);
             const pts = [0, 1, 2]
@@ -202,7 +210,7 @@ function Pyramid3D({ progress }: { progress: MotionValue<number> }) {
         </svg>
       </div>
 
-      {/* Apex glow dot */}
+      {/* Apex glow dot at origin */}
       <div
         className="absolute left-1/2 top-0"
         style={{ transform: "translate(-50%, -50%)" }}
@@ -236,6 +244,8 @@ function Face({
     v > 0.4 ? `drop-shadow(0 0 ${8 + v * 20}px var(--color-accent-glow))` : "none",
   );
 
+  // Face: triangle in local XY plane with APEX at (0,0) and base from (-halfBase, H) to (+halfBase, H).
+  // After rotateY(a) rotateX(tilt): apex stays at origin (good — all 3 apexes coincide).
   const pad = 40;
   const vbW = halfBase * 2 + pad * 2;
   const vbH = H + pad * 2;
@@ -244,6 +254,7 @@ function Face({
     <div
       className="absolute left-1/2 top-0"
       style={{
+        // Anchor apex at origin (top-center of parent box).
         transform: `translate(-50%, 0) rotateY(${rotateY}deg) rotateX(${tilt}deg)`,
         transformStyle: "preserve-3d",
         transformOrigin: "50% 0",
@@ -277,50 +288,47 @@ function Face({
   );
 }
 
+/** A card spirals in from one side of the pyramid, holds, then exits the opposite side */
 function OrbitCard({
   index,
   block,
-  rotateY,
+  progress,
 }: {
   index: number;
   block: (typeof BLOCKS)[number];
-  rotateY: MotionValue<number>;
+  progress: MotionValue<number>;
 }) {
-  const angle = index * -120;
+  // Distribute across [0, 1] with overlap so something is always visible.
+  const start = index / 3;
+  const enter = start + 0.04;
+  const hold1 = start + 0.10;
+  const hold2 = start + 0.26;
+  const exit = start + 0.33;
 
-  // Counter Y rotation so the cards always face the camera
-  const transform = useTransform(rotateY, (rY) => {
-    return `translate(-50%, -50%) rotateY(${angle}deg) translateZ(var(--card-r, 340px)) rotateY(${-angle - rY}deg) translateY(var(--card-y, 0px))`;
-  });
+  // Desktop spiral path
+  const xD = useTransform(progress, [start, enter, hold1, hold2, exit], [480, 260, 230, 220, -520]);
+  const yD = useTransform(progress, [start, enter, hold1, hold2, exit], [160, 30, -10, -10, -180]);
+  // Mobile path — card floats up from below pyramid, holds at lower-right, exits upper-left
+  const xM = useTransform(progress, [start, enter, hold1, hold2, exit], [0, 60, 70, 60, -200]);
+  const yM = useTransform(progress, [start, enter, hold1, hold2, exit], [260, 180, 170, 170, -120]);
 
-  // Calculate opacity based on depth (cosine of world angle)
-  // Back faces are transparent/dimmer, active face is fully opaque
-  const opacity = useTransform(rotateY, (rY) => {
-    const worldAngleRad = ((rY + angle) * Math.PI) / 180;
-    const cosVal = Math.cos(worldAngleRad); // -1 to 1
-    return 0.25 + 0.75 * (cosVal + 1) / 2;
-  });
-
-  // Calculate scale based on depth to create 3D distance perspective
-  const scale = useTransform(rotateY, (rY) => {
-    const worldAngleRad = ((rY + angle) * Math.PI) / 180;
-    const cosVal = Math.cos(worldAngleRad); // -1 to 1
-    return 0.82 + 0.18 * (cosVal + 1) / 2;
-  });
+  const opacity = useTransform(progress, [start, enter - 0.01, enter, hold2, exit], [0, 0.2, 1, 1, 0]);
+  const scale = useTransform(progress, [start, enter, hold2, exit], [0.85, 1, 1, 0.85]);
+  const rotate = useTransform(progress, [start, exit], [6, -6]);
 
   return (
     <>
       {/* Desktop */}
       <motion.div
-        className="hidden md:block absolute left-1/2 top-1/2 [--card-r:340px] [--card-y:0px] pointer-events-auto z-10"
-        style={{ transform, opacity, scale, transformStyle: "preserve-3d" }}
+        className="hidden md:block absolute left-1/2 top-1/2 pointer-events-none z-10"
+        style={{ x: xD, y: yD, opacity, scale, rotate, translateX: "-50%", translateY: "-50%" }}
       >
         <CardBody block={block} wide />
       </motion.div>
       {/* Mobile */}
       <motion.div
-        className="md:hidden absolute left-1/2 top-1/2 [--card-r:185px] [--card-y:170px] pointer-events-auto z-10"
-        style={{ transform, opacity, scale, transformStyle: "preserve-3d" }}
+        className="md:hidden absolute left-1/2 top-1/2 pointer-events-none z-10"
+        style={{ x: xM, y: yM, opacity, scale, rotate, translateX: "-50%", translateY: "-50%" }}
       >
         <CardBody block={block} />
       </motion.div>
@@ -331,7 +339,7 @@ function OrbitCard({
 function CardBody({ block, wide = false }: { block: (typeof BLOCKS)[number]; wide?: boolean }) {
   return (
     <div
-      className={`relative ${wide ? "w-[360px] p-7" : "w-[280px] p-5"} bg-card/95 border border-accent/30`}
+      className={`relative ${wide ? "w-[360px] p-7" : "w-[280px] p-5"} bg-card/85 backdrop-blur-md border border-accent/30`}
       style={{ boxShadow: "0 20px 60px -20px oklch(0.78 0.13 85 / 0.35)" }}
     >
       <span className="absolute -top-px -left-px w-4 h-4 border-t border-l border-accent" />
