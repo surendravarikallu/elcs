@@ -1,12 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 
 const LINKS = [
-  { label: "iT TALK", sub: "[CALCULATORS / TOOLS]" },
-  { label: "PRODUCTS", sub: "[CATALOG / STORE]" },
-  { label: "PROGRESS", sub: "[ROADMAP / LOG]" },
-  { label: "HOME", sub: "[LANDING / ABOUT]" },
+  { label: "iT TALK",  sub: "[CALCULATORS / TOOLS]", href: "/it-talk"  },
+  { label: "PRODUCTS", sub: "[CATALOG / STORE]",      href: "/products" },
+  { label: "PROGRESS", sub: "[ROADMAP / LOG]",        href: "/progress" },
+  { label: "HOME",     sub: "[LANDING / ABOUT]",      href: "/"         },
 ];
 
 export function MenuOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -39,9 +40,9 @@ export function MenuOverlay({ open, onClose }: { open: boolean; onClose: () => v
             <ul className="space-y-2 md:space-y-4">
               {LINKS.map((l) => (
                 <li key={l.label} className="group">
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); onClose(); }}
+                  <Link
+                    href={l.href}
+                    onClick={onClose}
                     className="relative inline-block transition-transform duration-300 group-hover:translate-x-4"
                   >
                     <span className="font-display block text-[#2D302F] text-[clamp(2.5rem,9vw,9rem)] leading-[0.9] uppercase font-bold tracking-tight">
@@ -51,7 +52,7 @@ export function MenuOverlay({ open, onClose }: { open: boolean; onClose: () => v
                       {l.sub}
                     </span>
                     <span className="absolute -bottom-1 left-1/2 h-[2px] w-0 group-hover:w-full -translate-x-1/2 bg-[#D4AF37] transition-[width] duration-500" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
