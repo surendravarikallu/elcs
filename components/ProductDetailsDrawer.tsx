@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "motion/react";
 import { TactileAudio } from "./ittalk/TactileAudio";
+import { submitEnquiry } from "@/app/actions/enquiry";
 import type { Product } from "@/types/database";
 
 interface ProductDetailsDrawerProps {
@@ -12,7 +13,15 @@ interface ProductDetailsDrawerProps {
 
 export function ProductDetailsDrawer({ product, onClose }: ProductDetailsDrawerProps) {
   const [activeTab, setActiveTab] = useState<"specs" | "code">("specs");
-  const [copied, setCopied] = useState(false);
+  const [copied,    setCopied]    = useState(false);
+
+  // Quote form state (must be declared before the early return)
+  const [quoteOpen,    setQuoteOpen]    = useState(false);
+  const [quoteSent,    setQuoteSent]    = useState(false);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quoteErr,     setQuoteErr]     = useState("");
+  const [qf, setQf] = useState({ name: "", email: "", phone: "", company: "", qty: "1", message: "" });
+  const quoteRef = useRef<HTMLDivElement>(null);
 
   if (!product) return null;
 
@@ -147,6 +156,38 @@ if __name__ == "__main__":
     navigator.clipboard.writeText(getIntegrationCode(product));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleOpenQuote = () => {
+    TactileAudio.playClick();
+    setQuoteOpen(true);
+    setTimeout(() => quoteRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+  };
+
+  const handleQuoteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setQuoteLoading(true);
+    setQuoteErr("");
+    try {
+      const result = await submitEnquiry({
+        name:         qf.name,
+        email:        qf.email,
+        phone:        qf.phone    || undefined,
+        company:      qf.company  || undefined,
+        message:      qf.message  || undefined,
+        product_id:   product.id,
+        product_name: product.name,
+        quantity:     parseInt(qf.qty) || 1,
+      });
+      if (result.success) {
+        setQuoteSent(true);
+      } else {
+        setQuoteErr(result.error ?? "Something went wrong. Please try again.");
+      }
+    } catch {
+      setQuoteErr("Network error. Please try again.");
+    }
+    setQuoteLoading(false);
   };
 
   const hasSpecs = Object.keys(product.specs || {}).length > 0;
@@ -314,6 +355,105 @@ if __name__ == "__main__":
           </div>
         </div>
 
+        {/* ── Quote Form (injected into scrollable area) ── */}
+        {quoteOpen && (
+          <div ref={quoteRef} className="mx-6 mb-6 border border-accent/25 bg-background/40 p-5 space-y-4">
+            <div className="font-mono text-[9px] text-accent tracking-[0.4em]">
+              [ REQUEST QUOTE — {product.name.toUpperCase()} ]
+            </div>
+
+            {quoteSent ? (
+              <div className="py-8 text-center space-y-3">
+                <div className="font-mono text-[10px] text-accent tracking-[0.3em]">✓ ENQUIRY RECEIVED</div>
+                <p className="font-body text-sm text-foreground/50">We&apos;ll get back to you within 24 hours.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleQuoteSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
+                  <div>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-foreground/40 uppercase mb-1.5">Name *</label>
+                    <input
+                      required
+                      value={qf.name}
+                      onChange={(e) => setQf((p) => ({ ...p, name: e.target.value }))}
+                      placeholder="Your name"
+                      className="w-full bg-transparent border-b border-foreground/20 pb-1.5 font-body text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-foreground/40 uppercase mb-1.5">Email *</label>
+                    <input
+                      required
+                      type="email"
+                      value={qf.email}
+                      onChange={(e) => setQf((p) => ({ ...p, email: e.target.value }))}
+                      placeholder="you@example.com"
+                      className="w-full bg-transparent border-b border-foreground/20 pb-1.5 font-body text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-foreground/40 uppercase mb-1.5">Phone</label>
+                    <input
+                      value={qf.phone}
+                      onChange={(e) => setQf((p) => ({ ...p, phone: e.target.value }))}
+                      placeholder="+91 00000 00000"
+                      className="w-full bg-transparent border-b border-foreground/20 pb-1.5 font-body text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-foreground/40 uppercase mb-1.5">Quantity</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={qf.qty}
+                      onChange={(e) => setQf((p) => ({ ...p, qty: e.target.value }))}
+                      className="w-full bg-transparent border-b border-foreground/20 pb-1.5 font-body text-xs text-foreground focus:outline-none focus:border-accent transition-colors"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-mono text-[9px] tracking-[0.3em] text-foreground/40 uppercase mb-1.5">Company / Institution</label>
+                  <input
+                    value={qf.company}
+                    onChange={(e) => setQf((p) => ({ ...p, company: e.target.value }))}
+                    placeholder="Optional"
+                    className="w-full bg-transparent border-b border-foreground/20 pb-1.5 font-body text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-[9px] tracking-[0.3em] text-foreground/40 uppercase mb-1.5">Message</label>
+                  <textarea
+                    rows={3}
+                    value={qf.message}
+                    onChange={(e) => setQf((p) => ({ ...p, message: e.target.value }))}
+                    placeholder="Custom requirements, bulk order details, etc."
+                    className="w-full bg-transparent border border-foreground/10 p-2.5 font-body text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent transition-colors resize-none"
+                  />
+                </div>
+                {quoteErr && (
+                  <p className="font-mono text-[9px] text-destructive">{quoteErr}</p>
+                )}
+                <div className="flex gap-3 pt-1">
+                  <button
+                    type="submit"
+                    disabled={quoteLoading}
+                    className="flex-1 font-mono text-[10px] tracking-[0.3em] py-3 border border-accent/50 text-accent hover:bg-accent hover:text-accent-foreground transition-all uppercase disabled:opacity-40 cursor-pointer"
+                  >
+                    {quoteLoading ? "SENDING…" : "SUBMIT ENQUIRY"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuoteOpen(false)}
+                    className="font-mono text-[10px] tracking-[0.3em] px-5 py-3 border border-foreground/15 text-foreground/35 hover:border-foreground/30 transition-colors uppercase cursor-pointer"
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+
         {/* Footer Actions */}
         <div className="p-6 border-t border-border bg-background/30 shrink-0 grid grid-cols-2 gap-4">
           {product.manual_url ? (
@@ -335,13 +475,16 @@ if __name__ == "__main__":
             </button>
           )}
 
-          <a
-            href={`mailto:info@elcs.in?subject=Quote Request — ${encodeURIComponent(product.name)}`}
-            className="text-center font-mono text-[10px] tracking-[0.25em] py-3.5 border border-accent bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground transition-all uppercase cursor-pointer font-medium"
-            onClick={() => TactileAudio.playClick()}
+          <button
+            onClick={quoteSent ? undefined : quoteOpen ? () => setQuoteOpen(false) : handleOpenQuote}
+            className={`text-center font-mono text-[10px] tracking-[0.25em] py-3.5 border uppercase font-medium transition-all cursor-pointer ${
+              quoteSent
+                ? "border-accent/30 text-accent/50 cursor-default"
+                : "border-accent bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground"
+            }`}
           >
-            Request Quote
-          </a>
+            {quoteSent ? "✓ ENQUIRY SENT" : quoteOpen ? "CLOSE FORM" : "Request Quote"}
+          </button>
         </div>
       </motion.div>
     </div>
