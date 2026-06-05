@@ -193,9 +193,6 @@ export function AboutBento() {
                   <p className="font-body text-xs md:text-sm text-foreground/70 leading-relaxed">
                     Our mission is to simplify hardware development by offering plug-and-play modules, ready-to-use PCB designs, and custom embedded solutions that help engineers, makers, and industries innovate faster.
                   </p>
-                  <p className="font-body text-xs md:text-sm text-foreground/55 leading-relaxed">
-                    Every product comes with complete 3D models, technical documentation, and full support files, making integration easy for everyone from beginners to professionals. At ELCS, we aim to make advanced embedded technology accessible, allowing everyone to build smarter, safer, and more efficient systems.
-                  </p>
                 </div>
 
                 {/* Right column: Standards list */}
@@ -216,11 +213,6 @@ export function AboutBento() {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="font-mono text-[9px] md:text-[10px] tracking-[0.3em] text-foreground/30 uppercase mt-12 flex items-center gap-3">
-                <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
-                MOVE CURSOR — TRACE THE BOARD
               </div>
             </div>
           </div>
