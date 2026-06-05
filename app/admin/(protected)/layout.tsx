@@ -45,7 +45,32 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   // redirect() is called OUTSIDE try/catch so Next.js can handle the throw
   if (!user) redirect("/admin/login");
-  if (!adminUser) redirect("/");
+
+  // User is authenticated but not in admin_users table
+  if (!adminUser) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="text-center font-mono space-y-3 max-w-sm px-6">
+          <div className="text-accent text-[10px] tracking-[0.45em]">[ ACCESS DENIED ]</div>
+          <p className="text-sm text-foreground/50">
+            Your account ({user!.email}) is not in the admin_users table.
+          </p>
+          <p className="text-xs text-foreground/30">
+            Run this in Supabase SQL Editor:
+          </p>
+          <pre className="text-left text-[10px] text-foreground/50 bg-card border border-foreground/10 p-3 rounded overflow-auto">
+{`INSERT INTO admin_users (id, email, name)
+VALUES (
+  '${user!.id}',
+  '${user!.email}',
+  'Your Name'
+)
+ON CONFLICT (id) DO NOTHING;`}
+          </pre>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
