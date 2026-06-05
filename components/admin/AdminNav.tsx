@@ -11,7 +11,17 @@ const NAV = [
   { href: "/admin/enquiries",  label: "ENQUIRIES",  tag: "[INBOX]"     },
 ];
 
-export function AdminNav({ email, name }: { email: string; name: string | null }) {
+export function AdminNav({
+  email,
+  name,
+  drawerOpen,
+  onDrawerClose,
+}: {
+  email: string;
+  name: string | null;
+  drawerOpen?: boolean;
+  onDrawerClose?: () => void;
+}) {
   const pathname = usePathname();
   const router   = useRouter();
 
@@ -23,7 +33,12 @@ export function AdminNav({ email, name }: { email: string; name: string | null }
   };
 
   return (
-    <aside className="w-60 shrink-0 min-h-screen border-r border-foreground/10 flex flex-col p-6 bg-background">
+    <aside
+      className={`
+        fixed inset-y-0 left-0 z-[80] w-60 bg-background border-r border-foreground/10 flex flex-col p-6 transition-transform duration-300 md:translate-x-0 md:static md:min-h-screen md:flex
+        ${drawerOpen ? "translate-x-0" : "-translate-x-full"}
+      `}
+    >
       {/* Brand */}
       <div className="mb-10">
         <Link href="/" className="block">
@@ -43,6 +58,7 @@ export function AdminNav({ email, name }: { email: string; name: string | null }
               <li key={href}>
                 <Link
                   href={href}
+                  onClick={onDrawerClose}
                   className={`flex flex-col px-4 py-3 border-l-2 transition-all duration-200 ${
                     active
                       ? "border-accent bg-accent/5 text-foreground"
