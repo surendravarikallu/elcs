@@ -90,30 +90,31 @@ export default function AdminEnquiries() {
             <div key={e.id}>
               {/* Row */}
               <div
-                className="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer hover:bg-card/50 transition-colors"
+                className="flex items-center justify-between gap-2 md:gap-4 px-4 md:px-5 py-4 cursor-pointer hover:bg-card/50 transition-colors"
                 onClick={() => setExpanded((prev) => prev === e.id ? null : e.id)}
               >
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-3 mb-0.5">
+                  <div className="flex items-center gap-2 md:gap-3 mb-0.5">
                     <span className="font-body text-sm text-foreground font-medium">{e.customer_name}</span>
-                    {e.company && <span className="font-mono text-[10px] text-foreground/35">{e.company}</span>}
+                    {e.company && <span className="hidden sm:inline font-mono text-[10px] text-foreground/35">{e.company}</span>}
                   </div>
-                  <div className="font-mono text-[10px] text-foreground/35">{e.customer_email}</div>
+                  <div className="font-mono text-[10px] text-foreground/35 truncate">{e.customer_email}</div>
                 </div>
 
-                <div className="flex items-center gap-4 shrink-0">
-                  {/* Items count */}
+                <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                  {/* Items count — hidden on mobile */}
                   {e.items.length > 0 && (
-                    <span className="font-mono text-[10px] text-foreground/30">
+                    <span className="hidden md:inline font-mono text-[10px] text-foreground/30">
                       {e.items.length} item{e.items.length > 1 ? "s" : ""}
                     </span>
                   )}
 
-                  <span className={`font-mono text-[9px] tracking-[0.25em] px-2.5 py-1 border uppercase ${STATUS_STYLE[e.status]}`}>
+                  <span className={`font-mono text-[9px] tracking-[0.2em] px-2 py-0.5 md:px-2.5 md:py-1 border uppercase ${STATUS_STYLE[e.status]}`}>
                     {e.status}
                   </span>
 
-                  <span className="font-mono text-[10px] text-foreground/25 whitespace-nowrap">
+                  {/* Date — hidden on mobile */}
+                  <span className="hidden md:inline font-mono text-[10px] text-foreground/25 whitespace-nowrap">
                     {new Date(e.created_at).toLocaleDateString("en-IN")}
                   </span>
 

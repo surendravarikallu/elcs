@@ -64,7 +64,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Quick actions */}
-      <div className="flex gap-4 mb-12">
+      <div className="flex flex-wrap gap-3 mb-10 md:mb-12">
         <Link
           href="/admin/products/new"
           className="font-mono text-[10px] tracking-[0.3em] px-6 py-3 border border-accent/50 text-accent hover:bg-accent hover:text-accent-foreground transition-colors uppercase"

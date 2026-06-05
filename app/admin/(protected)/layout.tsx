@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 export const metadata = { title: "Admin — ELCS" };
 
@@ -73,9 +73,8 @@ ON CONFLICT (id) DO NOTHING;`}
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
-      <AdminNav email={user!.email!} name={adminUser!.name} />
-      <main className="flex-1 overflow-auto p-8 md:p-10">{children}</main>
-    </div>
+    <AdminShell email={user!.email!} name={adminUser!.name}>
+      {children}
+    </AdminShell>
   );
 }

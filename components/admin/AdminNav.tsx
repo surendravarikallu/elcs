@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
@@ -23,13 +24,12 @@ export function AdminNav({
   onDrawerClose?: () => void;
 }) {
   const pathname = usePathname();
-  const router   = useRouter();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/admin/login");
-    router.refresh();
+    window.location.href = "/admin/login";
   };
 
   return (
@@ -39,6 +39,16 @@ export function AdminNav({
         ${drawerOpen ? "translate-x-0" : "-translate-x-full"}
       `}
     >
+      {/* Mobile close button */}
+      <button
+        className="md:hidden absolute top-4 right-4 p-2 flex flex-col gap-[5px] items-center justify-center"
+        onClick={onDrawerClose}
+        aria-label="Close navigation"
+      >
+        <span className="block w-4 h-px bg-foreground rotate-45 translate-y-[3px]" />
+        <span className="block w-4 h-px bg-foreground -rotate-45 -translate-y-[3px]" />
+      </button>
+
       {/* Brand */}
       <div className="mb-10">
         <Link href="/" className="block">
@@ -79,12 +89,36 @@ export function AdminNav({
         <div className="font-mono text-[9px] text-foreground/30 tracking-[0.3em] mb-1">LOGGED IN AS</div>
         <div className="font-body text-sm text-foreground/60 truncate">{name ?? email}</div>
         <button
-          onClick={handleLogout}
+          onClick={() => setConfirmOpen(true)}
           className="mt-4 font-mono text-[9px] tracking-[0.3em] text-destructive hover:opacity-70 uppercase transition-opacity"
         >
           ↩ SIGN OUT
         </button>
       </div>
+
+      {/* Sign-out confirmation */}
+      {confirmOpen && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="bg-background border border-foreground/15 p-8 w-72 space-y-5">
+            <div className="font-mono text-[9px] tracking-[0.4em] text-accent">[ CONFIRM ]</div>
+            <p className="font-body text-sm text-foreground/70">Sign out of the admin panel?</p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleLogout}
+                className="flex-1 font-mono text-[9px] tracking-[0.3em] py-2.5 border border-destructive/50 text-destructive hover:bg-destructive/10 transition-colors uppercase"
+              >
+                SIGN OUT
+              </button>
+              <button
+                onClick={() => setConfirmOpen(false)}
+                className="flex-1 font-mono text-[9px] tracking-[0.3em] py-2.5 border border-foreground/15 text-foreground/40 hover:border-foreground/30 transition-colors uppercase"
+              >
+                CANCEL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

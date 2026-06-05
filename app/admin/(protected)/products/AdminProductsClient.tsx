@@ -70,48 +70,78 @@ export function AdminProductsClient({
           {filtered.map((p) => (
             <div
               key={p.id}
-              className={`grid grid-cols-1 md:grid-cols-[3rem_1fr_7rem_3rem_6rem_8rem] gap-4 items-center px-5 py-4 hover:bg-card/50 transition-colors ${busy === p.id ? "opacity-50 pointer-events-none" : ""}`}
+              className={`hover:bg-card/50 transition-colors ${busy === p.id ? "opacity-50 pointer-events-none" : ""}`}
             >
-              {/* Thumbnail */}
-              <div className="w-12 h-10 bg-secondary border border-foreground/10 overflow-hidden shrink-0">
-                {p.image_url
-                  ? <img src={p.image_url} alt="" className="w-full h-full object-cover" />
-                  : <div className="w-full h-full flex items-center justify-center text-foreground/20 text-xs">—</div>
-                }
+              {/* ── Mobile card ── */}
+              <div className="md:hidden flex items-start gap-3 px-4 py-3">
+                <div className="w-10 h-9 bg-secondary border border-foreground/10 overflow-hidden shrink-0 mt-0.5">
+                  {p.image_url
+                    ? <img src={p.image_url} alt="" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center text-foreground/20 text-xs">—</div>
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="font-display uppercase text-sm text-foreground truncate leading-tight">
+                      {p.name}
+                      {p.is_featured && <span className="ml-1.5 text-accent text-[10px]">★</span>}
+                    </div>
+                    <button
+                      onClick={() => togglePublish(p)}
+                      className={`shrink-0 font-mono text-[9px] tracking-[0.2em] px-2 py-0.5 border whitespace-nowrap transition-colors ${
+                        p.is_published ? "border-accent/40 text-accent" : "border-foreground/15 text-foreground/30"
+                      }`}
+                    >
+                      {p.is_published ? "LIVE" : "DRAFT"}
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <div className="font-mono text-[10px] text-foreground/35 truncate">
+                      {p.category?.name ?? "—"}
+                      {p.price != null && <span className="ml-2 text-foreground/45">₹{p.price.toLocaleString("en-IN")}</span>}
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0 ml-2">
+                      <Link href={`/admin/products/${p.id}/edit`} className="font-mono text-[10px] text-foreground/45 hover:text-accent transition-colors">EDIT</Link>
+                      <button onClick={() => deleteProduct(p)} className="font-mono text-[10px] text-foreground/25 hover:text-destructive transition-colors">DEL</button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Name + Category */}
-              <div className="min-w-0">
-                <div className="font-display uppercase text-base text-foreground truncate">{p.name}</div>
-                <div className="font-mono text-[10px] text-foreground/35">{p.category?.name ?? "—"}</div>
-              </div>
-
-              {/* Price */}
-              <div className="font-mono text-xs text-foreground/50 whitespace-nowrap">
-                {p.price != null ? `₹${p.price.toLocaleString("en-IN")}` : "—"}
-              </div>
-
-              {/* Featured */}
-              <div className="font-mono text-[10px] text-foreground/30">{p.is_featured ? "★" : ""}</div>
-
-              {/* Status toggle */}
-              <button
-                onClick={() => togglePublish(p)}
-                className={`font-mono text-[9px] tracking-[0.25em] px-3 py-1 border whitespace-nowrap transition-colors ${
-                  p.is_published ? "border-accent/40 text-accent hover:bg-accent/10" : "border-foreground/15 text-foreground/30 hover:border-foreground/30"
-                }`}
-              >
-                {p.is_published ? "LIVE" : "DRAFT"}
-              </button>
-
-              {/* Actions */}
-              <div className="flex items-center gap-3">
-                <Link href={`/admin/products/${p.id}/edit`} className="font-mono text-[10px] text-foreground/50 hover:text-accent transition-colors">
-                  EDIT
-                </Link>
-                <button onClick={() => deleteProduct(p)} className="font-mono text-[10px] text-foreground/30 hover:text-destructive transition-colors">
-                  DEL
+              {/* ── Desktop table row ── */}
+              <div className="hidden md:grid grid-cols-[3rem_1fr_7rem_3rem_6rem_8rem] gap-4 items-center px-5 py-4">
+                {/* Thumbnail */}
+                <div className="w-12 h-10 bg-secondary border border-foreground/10 overflow-hidden shrink-0">
+                  {p.image_url
+                    ? <img src={p.image_url} alt="" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center text-foreground/20 text-xs">—</div>
+                  }
+                </div>
+                {/* Name + Category */}
+                <div className="min-w-0">
+                  <div className="font-display uppercase text-base text-foreground truncate">{p.name}</div>
+                  <div className="font-mono text-[10px] text-foreground/35">{p.category?.name ?? "—"}</div>
+                </div>
+                {/* Price */}
+                <div className="font-mono text-xs text-foreground/50 whitespace-nowrap">
+                  {p.price != null ? `₹${p.price.toLocaleString("en-IN")}` : "—"}
+                </div>
+                {/* Featured */}
+                <div className="font-mono text-[10px] text-foreground/30">{p.is_featured ? "★" : ""}</div>
+                {/* Status toggle */}
+                <button
+                  onClick={() => togglePublish(p)}
+                  className={`font-mono text-[9px] tracking-[0.25em] px-3 py-1 border whitespace-nowrap transition-colors ${
+                    p.is_published ? "border-accent/40 text-accent hover:bg-accent/10" : "border-foreground/15 text-foreground/30 hover:border-foreground/30"
+                  }`}
+                >
+                  {p.is_published ? "LIVE" : "DRAFT"}
                 </button>
+                {/* Actions */}
+                <div className="flex items-center gap-3">
+                  <Link href={`/admin/products/${p.id}/edit`} className="font-mono text-[10px] text-foreground/50 hover:text-accent transition-colors">EDIT</Link>
+                  <button onClick={() => deleteProduct(p)} className="font-mono text-[10px] text-foreground/30 hover:text-destructive transition-colors">DEL</button>
+                </div>
               </div>
             </div>
           ))}
