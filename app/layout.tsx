@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Oswald, Caudex, Nunito_Sans, JetBrains_Mono, Inter } from 'next/font/google'
+import { Oswald, Caudex, Nunito_Sans, JetBrains_Mono, Inter, DM_Sans } from 'next/font/google'
 import './globals.css'
 
 /* ── Oswald — display / headings (industrial condensed uppercase) ── */
@@ -38,6 +38,13 @@ const inter = Inter({
   display: 'swap',
 })
 
+/* ── DM Sans — product names & detail view (humanist, highly legible) ── */
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--ff-product',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
   title: 'ELCS — Embedded Modules, Control & Connectivity',
   description:
@@ -61,6 +68,7 @@ export default function RootLayout({
         ${nunitoSans.variable}
         ${jetbrainsMono.variable}
         ${inter.variable}
+        ${dmSans.variable}
       `}
     >
       <body className="antialiased">

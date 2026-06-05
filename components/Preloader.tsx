@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
-export function Preloader({ onComplete }: { onComplete?: () => void }) {
+export function Preloader({ onComplete, skipLogo = false }: { onComplete?: () => void; skipLogo?: boolean }) {
   const [count, setCount] = useState(0);
   const [phase, setPhase] = useState<"count" | "logo" | "curtain" | "done">("count");
 
@@ -31,11 +31,11 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
       const p = Math.min(1, (t - start) / dur);
       setCount(Math.floor(p * 100));
       if (p < 1) raf = requestAnimationFrame(tick);
-      else setTimeout(() => setPhase("logo"), 150);
+      else setTimeout(() => setPhase(skipLogo ? "curtain" : "logo"), 150);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [phase]);
+  }, [phase, skipLogo]);
 
   useEffect(() => {
     if (phase === "logo") {
@@ -72,7 +72,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                 </motion.div>
               )}
             </AnimatePresence>
-            {phase !== "count" && (
+            {phase !== "count" && !skipLogo && (
               <motion.svg
                 viewBox="0 0 100 100"
                 className="absolute inset-0 w-full h-full"

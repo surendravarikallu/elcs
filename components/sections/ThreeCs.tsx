@@ -124,12 +124,11 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
         </motion.div>
       </div>
 
-      {/* scroll prompt — fades out once user has scrolled in */}
+      {/* scroll prompt — animated line only, no text */}
       <motion.div
         className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
         style={{ opacity: useTransform(progress, [0, 0.08], [1, 0]) }}
       >
-        <span className="font-mono text-[9px] tracking-[0.4em] text-foreground/40 uppercase">scroll</span>
         <motion.span
           className="block w-px h-7 bg-accent/50"
           animate={{ y: [0, 8, 0] }}

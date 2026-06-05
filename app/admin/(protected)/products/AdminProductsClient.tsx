@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Product, Category } from "@/types/database";
 
@@ -10,7 +9,6 @@ const FILTERS = ["all", "published", "draft"] as const;
 
 export function AdminProductsClient({
   products: initial,
-  categories,
 }: {
   products: Product[];
   categories: Category[];
@@ -18,7 +16,6 @@ export function AdminProductsClient({
   const [products, setProducts] = useState(initial);
   const [filter, setFilter]     = useState<(typeof FILTERS)[number]>("all");
   const [busy, setBusy]         = useState<string | null>(null);
-  const router = useRouter();
 
   const filtered = products.filter((p) =>
     filter === "all" ? true : filter === "published" ? p.is_published : !p.is_published

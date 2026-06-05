@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ElcsLogo } from "@/components/ElcsLogo";
 
@@ -43,10 +44,20 @@ export default function AdminLogin() {
         }}
       />
 
+      {/* Back to site — top left */}
+      <Link
+        href="/"
+        className="fixed top-6 left-8 font-mono text-[10px] tracking-[0.35em] text-foreground/30 hover:text-accent transition-colors uppercase flex items-center gap-2"
+      >
+        ← Site
+      </Link>
+
       <div className="relative w-full max-w-sm">
-        {/* Logo */}
+        {/* Logo — click to go home */}
         <div className="flex justify-center mb-10">
-          <ElcsLogo className="w-14 h-14 object-contain" />
+          <Link href="/">
+            <ElcsLogo className="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+          </Link>
         </div>
 
         {/* Card */}

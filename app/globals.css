@@ -38,6 +38,7 @@
   --font-sans: var(--ff-sans), system-ui, sans-serif;
   --font-body: var(--ff-body), "Inter", sans-serif;
   --font-mono: var(--ff-mono), ui-monospace, monospace;
+  --font-product: var(--ff-product), "DM Sans", system-ui, sans-serif;
 }
 
 :root {
@@ -115,4 +116,7 @@
 }
 @utility font-mono {
   font-family: var(--font-mono);
+}
+@utility font-product {
+  font-family: var(--font-product);
 }

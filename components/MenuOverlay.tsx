@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 
 const LINKS = [
-  { label: "iT TALK",  sub: "[CALCULATORS / TOOLS]", href: "/it-talk"  },
+  { label: "iT TALK",  sub: "[CALCULATORS / TOOLS]", href: "/ittalk"  },
   { label: "PRODUCTS", sub: "[CATALOG / STORE]",      href: "/products" },
   { label: "PROGRESS", sub: "[ROADMAP / LOG]",        href: "/progress" },
   { label: "HOME",     sub: "[LANDING / ABOUT]",      href: "/"         },
@@ -23,7 +23,7 @@ export function MenuOverlay({ open, onClose }: { open: boolean; onClose: () => v
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
-              className="bg-[#D7D0C7] h-full"
+              className="bg-background h-full"
               variants={{
                 initial: { x: "100%" },
                 animate: { x: 0, transition: { duration: 0.55, ease: [0.76, 0, 0.24, 1], delay: i * 0.1 } },
@@ -45,13 +45,13 @@ export function MenuOverlay({ open, onClose }: { open: boolean; onClose: () => v
                     onClick={onClose}
                     className="relative inline-block transition-transform duration-300 group-hover:translate-x-4"
                   >
-                    <span className="font-display block text-[#2D302F] text-[clamp(2.5rem,9vw,9rem)] leading-[0.9] uppercase font-bold tracking-tight">
+                    <span className="font-display block text-foreground text-[clamp(2.5rem,9vw,9rem)] leading-[0.9] uppercase font-bold tracking-tight">
                       {l.label}
                     </span>
-                    <span className="font-mono text-xs md:text-sm text-[#7A5938] opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="font-mono text-xs md:text-sm text-accent/70 opacity-0 group-hover:opacity-100 transition-opacity">
                       {l.sub}
                     </span>
-                    <span className="absolute -bottom-1 left-1/2 h-[2px] w-0 group-hover:w-full -translate-x-1/2 bg-[#D4AF37] transition-[width] duration-500" />
+                    <span className="absolute -bottom-1 left-1/2 h-[2px] w-0 group-hover:w-full -translate-x-1/2 bg-accent transition-[width] duration-500" />
                   </Link>
                 </li>
               ))}

@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SiteShell } from "@/components/SiteShell";
 import { Footer } from "@/components/sections/Footer";
-import { ProductCard } from "@/components/ProductCard";
 import type { Category, Product } from "@/types/database";
 
 export const metadata = {

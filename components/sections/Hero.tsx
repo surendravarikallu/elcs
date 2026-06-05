@@ -21,7 +21,7 @@ const COLUMNS = [
 export function HeroAccordion({ ready }: { ready: boolean }) {
   const [hovered, setHovered] = useState<number | null>(null);
   const [taken, setTaken] = useState<number | null>(null);
-  const [activeMobile, setActiveMobile] = useState<number>(0);
+  const [activeMobile, setActiveMobile] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export function HeroAccordion({ ready }: { ready: boolean }) {
               variants={{ hidden: { opacity: 0, scaleY: 0.95 }, show: { opacity: 1, scaleY: 1, transition: { duration: 0.8 } } }}
               onMouseEnter={() => !anyTaken && setHovered(i)}
               onMouseLeave={() => !anyTaken && setHovered(null)}
-              onClick={() => setTaken(i)}
+              onClick={() => setTaken(taken === i ? null : i)}
               animate={{ flexGrow: flex, flexBasis: 0 }}
               transition={{ type: "spring", stiffness: 120, damping: 22 }}
               className="relative h-full border-r border-foreground/5 last:border-r-0 overflow-hidden cursor-pointer min-w-0"
@@ -74,6 +74,18 @@ export function HeroAccordion({ ready }: { ready: boolean }) {
                 width={800} height={1024}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+              {/* Liquid glass shimmer on hover/taken */}
+              {(isHovered || isTaken) && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, oklch(1 0 0 / 0.06) 0%, transparent 50%, oklch(0.78 0.13 85 / 0.04) 100%)",
+                    backdropFilter: "blur(0.5px) saturate(1.3)",
+                    WebkitBackdropFilter: "blur(0.5px) saturate(1.3)",
+                  }}
+                />
+              )}
               {!isHovered && !isTaken && (
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 [writing-mode:vertical-rl] rotate-180 font-mono text-xs tracking-[0.3em] text-foreground/70 uppercase whitespace-nowrap">
                   {c.heading.split(" ")[0]}
@@ -119,7 +131,7 @@ export function HeroAccordion({ ready }: { ready: boolean }) {
           return (
             <motion.div
               key={i}
-              onClick={() => setActiveMobile(i)}
+              onClick={() => setActiveMobile(activeMobile === i ? null : i)}
               animate={{ height: active ? "55vh" : "11vh" }}
               transition={{ type: "spring", stiffness: 120, damping: 22 }}
               className={`relative overflow-hidden border-b border-foreground/5 ${active ? "border-l-2 border-l-accent" : ""}`}
@@ -136,7 +148,7 @@ export function HeroAccordion({ ready }: { ready: boolean }) {
         })}
       </div>
 
-      {/* Scroll cue */}
+      {/* Scroll cue — animated line only, no text */}
       <AnimatePresence>
         {ready && !scrolled && taken === null && (
           <motion.div
@@ -144,9 +156,8 @@ export function HeroAccordion({ ready }: { ready: boolean }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ delay: 1.2, duration: 0.4 }}
-            className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 font-mono text-[10px] tracking-[0.4em] text-foreground/50 uppercase z-10"
+            className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center z-10"
           >
-            <span>Scroll</span>
             <motion.span
               animate={{ y: [0, 6, 0] }}
               transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
@@ -155,6 +166,7 @@ export function HeroAccordion({ ready }: { ready: boolean }) {
           </motion.div>
         )}
       </AnimatePresence>
+
     </section>
   );
 }
