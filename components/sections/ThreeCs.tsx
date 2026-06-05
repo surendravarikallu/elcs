@@ -45,7 +45,8 @@ export function ThreeCs() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
 
   return (
-    <section ref={ref} id="three-cs" className="relative h-[320vh] md:h-[320vh] bg-background">
+    // 360vh = 120vh per card — gives enough scroll time to see each one fully
+    <section ref={ref} id="three-cs" className="relative h-[360vh] bg-background">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         <Stage progress={scrollYProgress} />
       </div>
@@ -124,6 +125,19 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
         <OrbitCard key={b.id} index={i} block={b} progress={progress} />
       ))}
 
+      {/* scroll prompt — fades out once user has scrolled in */}
+      <motion.div
+        className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
+        style={{ opacity: useTransform(progress, [0, 0.08], [1, 0]) }}
+      >
+        <span className="font-mono text-[9px] tracking-[0.4em] text-foreground/40 uppercase">scroll</span>
+        <motion.span
+          className="block w-px h-7 bg-accent/50"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+        />
+      </motion.div>
+
       <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] text-foreground/30 uppercase">
         #ConnectTogether
       </div>
@@ -132,9 +146,10 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
 }
 
 function Pyramid3D({ progress }: { progress: MotionValue<number> }) {
-  const faceA = useTransform(progress, [0, 0.16, 0.33], [0, 1, 0]);
-  const faceB = useTransform(progress, [0.33, 0.5, 0.66], [0, 1, 0]);
-  const faceC = useTransform(progress, [0.66, 0.83, 1], [0, 1, 0]);
+  // Each face peaks exactly when its orbit card is held centre-screen
+  const faceA = useTransform(progress, [0, 0.13, 0.27], [0, 1, 0]);
+  const faceB = useTransform(progress, [0.33, 0.47, 0.6], [0, 1, 0]);
+  const faceC = useTransform(progress, [0.66, 0.8, 0.94], [0, 1, 0]);
 
   const H = 260;
   const halfBase = 150;
@@ -273,20 +288,26 @@ function OrbitCard({
   block: (typeof BLOCKS)[number];
   progress: MotionValue<number>;
 }) {
+  // Each card gets 1/3 of the scroll range.
+  // Generous hold2 so the card stays readable for ~10 seconds of scroll.
   const start = index / 3;
-  const enter = start + 0.04;
-  const hold1 = start + 0.10;
-  const hold2 = start + 0.26;
-  const exit = start + 0.33;
+  const enter = start + 0.03;
+  const hold1 = start + 0.07;
+  const hold2 = start + 0.25;
+  const exit  = start + 0.30;
 
-  const xD = useTransform(progress, [start, enter, hold1, hold2, exit], [480, 260, 230, 220, -520]);
-  const yD = useTransform(progress, [start, enter, hold1, hold2, exit], [160, 30, -10, -10, -180]);
-  const xM = useTransform(progress, [start, enter, hold1, hold2, exit], [0, 60, 70, 60, -200]);
-  const yM = useTransform(progress, [start, enter, hold1, hold2, exit], [260, 180, 170, 170, -120]);
+  // Desktop: slide in from right, hold RIGHT of pyramid centre (170px keeps card
+  // well within a 1280px screen: 640 + 170 + 180 = 990px < 1280).
+  const xD = useTransform(progress, [start, enter, hold1, hold2, exit], [340, 190, 170, 170, -360]);
+  const yD = useTransform(progress, [start, enter, hold1, hold2, exit], [60,  10,  -10, -10, -130]);
 
-  const opacity = useTransform(progress, [start, enter - 0.01, enter, hold2, exit], [0, 0.2, 1, 1, 0]);
-  const scale = useTransform(progress, [start, enter, hold2, exit], [0.85, 1, 1, 0.85]);
-  const rotate = useTransform(progress, [start, exit], [6, -6]);
+  // Mobile: card rises from below pyramid, sits centred, exits upward.
+  const xM = useTransform(progress, [start, enter, hold1, hold2, exit], [0, 0, 0, 0, 0]);
+  const yM = useTransform(progress, [start, enter, hold1, hold2, exit], [260, 185, 170, 170, -200]);
+
+  const opacity = useTransform(progress, [start, enter - 0.01, enter, hold2, exit], [0, 0.1, 1, 1, 0]);
+  const scale   = useTransform(progress, [start, enter, hold2, exit], [0.88, 1, 1, 0.88]);
+  const rotate  = useTransform(progress, [start, exit], [3, -3]);
 
   return (
     <>
