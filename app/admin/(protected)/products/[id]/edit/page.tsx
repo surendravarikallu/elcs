@@ -25,7 +25,7 @@ export default async function EditProduct({
   if (!product) notFound();
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-5xl">
       <div className="font-mono text-[10px] text-accent tracking-[0.45em] mb-2">[ ADMIN / PRODUCTS / EDIT ]</div>
       <h1 className="font-display uppercase text-4xl md:text-5xl text-foreground mb-2">Edit Product</h1>
       <p className="font-mono text-[10px] text-foreground/35 mb-10">{product.slug}</p>

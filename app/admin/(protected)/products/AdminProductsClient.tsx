@@ -61,8 +61,8 @@ export function AdminProductsClient({
       ) : (
         <div className="border border-foreground/10 divide-y divide-foreground/5">
           {/* Table header */}
-          <div className="hidden md:grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-4 px-5 py-3 bg-card">
-            {["IMG", "NAME / CATEGORY", "PRICE", "FEATURED", "STATUS", "ACTIONS"].map((h) => (
+          <div className="hidden md:grid grid-cols-[3rem_1fr_7rem_3rem_6rem_8rem] gap-4 px-5 py-3 bg-card">
+            {["IMG", "NAME / CATEGORY", "PRICE", "★", "STATUS", "ACTIONS"].map((h) => (
               <div key={h} className="font-mono text-[9px] tracking-[0.3em] text-foreground/35 uppercase">{h}</div>
             ))}
           </div>
@@ -70,7 +70,7 @@ export function AdminProductsClient({
           {filtered.map((p) => (
             <div
               key={p.id}
-              className={`grid grid-cols-1 md:grid-cols-[auto_1fr_auto_auto_auto_auto] gap-4 items-center px-5 py-4 hover:bg-card/50 transition-colors ${busy === p.id ? "opacity-50 pointer-events-none" : ""}`}
+              className={`grid grid-cols-1 md:grid-cols-[3rem_1fr_7rem_3rem_6rem_8rem] gap-4 items-center px-5 py-4 hover:bg-card/50 transition-colors ${busy === p.id ? "opacity-50 pointer-events-none" : ""}`}
             >
               {/* Thumbnail */}
               <div className="w-12 h-10 bg-secondary border border-foreground/10 overflow-hidden shrink-0">

@@ -11,7 +11,7 @@ export default async function NewProduct() {
   } catch {}
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-5xl">
       <div className="font-mono text-[10px] text-accent tracking-[0.45em] mb-2">[ ADMIN / PRODUCTS / NEW ]</div>
       <h1 className="font-display uppercase text-4xl md:text-5xl text-foreground mb-10">Add Product</h1>
       <ProductForm categories={categories} />

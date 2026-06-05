@@ -5,9 +5,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
-  { href: "/admin",            label: "DASHBOARD", tag: "[OVERVIEW]"  },
-  { href: "/admin/products",   label: "PRODUCTS",  tag: "[CATALOG]"   },
-  { href: "/admin/enquiries",  label: "ENQUIRIES", tag: "[INBOX]"     },
+  { href: "/admin",              label: "DASHBOARD",  tag: "[OVERVIEW]"  },
+  { href: "/admin/products",   label: "PRODUCTS",   tag: "[CATALOG]"   },
+  { href: "/admin/categories", label: "CATEGORIES", tag: "[TAXONOMY]"  },
+  { href: "/admin/enquiries",  label: "ENQUIRIES",  tag: "[INBOX]"     },
 ];
 
 export function AdminNav({ email, name }: { email: string; name: string | null }) {
