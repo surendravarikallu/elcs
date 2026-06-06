@@ -15,25 +15,22 @@ const BLOCKS = [
     id: "connect",
     n: "01",
     title: "CONNECT",
-    sub: "Network fabric",
-    body: "We bridge hardware, firmware, and the network — making integration feel native. Standardized interfaces, documented protocols, connectivity stacks built for production.",
-    metrics: ["BLE 5.4", "LoRaWAN", "MQTT", "TLS 1.3"],
+    sub: "Seamlessly integrate devices, networks, and data streams.",
+    body: "We specialize in establishing robust, low-latency communication across embedded systems, enabling real-time data acquisition, device interoperability, and intelligent automation. Whether it's wired or wireless protocols, our solutions ensure secure and scalable connectivity for mission-critical applications.",
   },
   {
     id: "control",
     n: "02",
     title: "CONTROL",
-    sub: "Signal path",
-    body: "Deterministic execution from sensor to actuator. Closed-loop pipelines, real-time scheduling, predictable IO behavior under load.",
-    metrics: ["<1ms JITTER", "PID/FOC", "RTOS", "ISO 26262"],
+    sub: "Precision control over systems, signals, and infrastructure.",
+    body: "Our embedded platforms offer deterministic control over physical processes, optimized data routing, and device orchestration. From real-time signal processing to edge-level decision-making, we empower you to monitor, manage, and scale operations with engineering-grade accuracy and performance.",
   },
   {
     id: "caresure",
     n: "03",
     title: "CARESURE",
-    sub: "Longevity",
-    body: "Lifecycle support that ships with the silicon. Certification trails, traceable BOMs, engineering escalation that keeps the system alive in the field.",
-    metrics: ["10YR SUPPLY", "BOM TRACE", "OTA", "RMA <72H"],
+    sub: "Deliver lifecycle-focused embedded services including diagnostics, preventive maintenance, and field-level repair.",
+    body: "Our commitment extends beyond deployment—ensuring system integrity, warranty-backed support, and post-installation excellence through predictive analytics and rapid service response.",
   },
 ];
 
@@ -330,29 +327,32 @@ function OrbitCard({
 function CardBody({ block, wide = false }: { block: (typeof BLOCKS)[number]; wide?: boolean }) {
   return (
     <div
-      className={`relative ${wide ? "w-[360px] p-7" : "w-[280px] p-5"} bg-card/95 border border-accent/30`}
+      className={`relative ${wide ? "w-[430px] p-8" : "w-[280px] p-5"} bg-card/95 border border-accent/30`}
       style={{ boxShadow: "0 20px 60px -20px oklch(0.78 0.13 85 / 0.35)" }}
     >
+      {/* corner brackets */}
       <span className="absolute -top-px -left-px w-4 h-4 border-t border-l border-accent" />
       <span className="absolute -top-px -right-px w-4 h-4 border-t border-r border-accent" />
       <span className="absolute -bottom-px -left-px w-4 h-4 border-b border-l border-accent" />
       <span className="absolute -bottom-px -right-px w-4 h-4 border-b border-r border-accent" />
 
-      <div className="flex items-center justify-between mb-3">
-        <div className="font-mono text-[10px] tracking-[0.4em] text-accent">[ {block.n} ]</div>
-        <div className="font-mono text-[9px] md:text-[10px] tracking-[0.3em] text-foreground/40 uppercase">{block.sub}</div>
-      </div>
-      <h3 className={`font-display uppercase ${wide ? "text-5xl" : "text-3xl"} text-foreground font-light leading-none mb-3`}>
+      {/* index */}
+      <div className="font-mono text-[10px] tracking-[0.4em] text-accent mb-3">[ {block.n} ]</div>
+
+      {/* title */}
+      <h3 className={`font-display uppercase ${wide ? "text-5xl" : "text-3xl"} text-foreground font-light leading-none mb-4`}>
         {block.title}
       </h3>
-      <p className={`font-body ${wide ? "text-sm" : "text-xs"} text-foreground/70 leading-relaxed mb-4`}>{block.body}</p>
-      <div className="flex flex-wrap gap-1.5 pt-3 border-t border-foreground/10">
-        {block.metrics.map((m) => (
-          <span key={m} className="font-mono text-[9px] tracking-[0.2em] px-2 py-1 border border-accent/30 text-accent/90">
-            {m}
-          </span>
-        ))}
-      </div>
+
+      {/* subtitle — full sentence, not a tag */}
+      <p className={`font-mono ${wide ? "text-[11px] leading-relaxed" : "text-[10px] leading-relaxed"} text-accent/75 mb-3`}>
+        {block.sub}
+      </p>
+
+      {/* body */}
+      <p className={`font-body ${wide ? "text-sm" : "text-xs"} text-foreground/65 leading-relaxed`}>
+        {block.body}
+      </p>
     </div>
   );
 }

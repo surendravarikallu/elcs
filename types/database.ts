@@ -92,3 +92,29 @@ export interface Enquiry {
 export type EnquiryInsert = Omit<Enquiry, "id" | "created_at" | "updated_at"> & {
   id?: string; created_at?: string; updated_at?: string;
 };
+
+// ── Carousel Slides ──────────────────────────────────────────────
+
+export interface CarouselSlide {
+  id:           string;
+  badge:        string | null;
+  title:        string;
+  description:  string | null;
+  image_url:    string | null;
+  cta_label:    string | null;
+  cta_url:      string | null;
+  sort_order:   number;
+  is_published: boolean;
+  created_at:   string;
+  updated_at:   string;
+}
+
+// ── Site Settings ────────────────────────────────────────────────
+
+export interface SiteSetting {
+  key:        string;
+  value:      string;
+  label:      string;
+  sort_order: number;
+  updated_at: string;
+}

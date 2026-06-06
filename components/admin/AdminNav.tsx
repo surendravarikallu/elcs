@@ -7,9 +7,11 @@ import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
   { href: "/admin",              label: "DASHBOARD",  tag: "[OVERVIEW]"  },
-  { href: "/admin/products",   label: "PRODUCTS",   tag: "[CATALOG]"   },
-  { href: "/admin/categories", label: "CATEGORIES", tag: "[TAXONOMY]"  },
-  { href: "/admin/enquiries",  label: "ENQUIRIES",  tag: "[INBOX]"     },
+  { href: "/admin/products",     label: "PRODUCTS",   tag: "[CATALOG]"   },
+  { href: "/admin/categories",   label: "CATEGORIES", tag: "[TAXONOMY]"  },
+  { href: "/admin/enquiries",    label: "ENQUIRIES",  tag: "[INBOX]"     },
+  { href: "/admin/carousel",     label: "CAROUSEL",   tag: "[SLIDES]"    },
+  { href: "/admin/footer",       label: "FOOTER",     tag: "[SETTINGS]"  },
 ];
 
 export function AdminNav({

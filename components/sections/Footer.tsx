@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ElcsLogo } from "../ElcsLogo";
 import { submitEnquiry } from "@/app/actions/enquiry";
+import { createClient } from "@/lib/supabase/client";
 
 export function Footer() {
   const [focus,   setFocus]   = useState<string | null>(null);
@@ -10,6 +11,20 @@ export function Footer() {
   const [sending, setSending] = useState(false);
   const [sent,    setSent]    = useState(false);
   const [formErr, setFormErr] = useState("");
+
+  // Dynamic footer content from DB
+  const [cfg, setCfg] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const sb = createClient();
+    sb.from("site_settings").select("key, value").then(({ data }) => {
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
+        setCfg(map);
+      }
+    });
+  }, []);
+  const s = (key: string, fallback = "") => cfg[key] ?? fallback;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +57,7 @@ export function Footer() {
           <div>
             <ElcsLogo className="h-10 w-auto mb-4 object-contain" />
             <div className="font-mono text-xs tracking-[0.3em] text-foreground/40 uppercase">
-              #ConnectTogether
+              {s("footer_tagline", "#ConnectTogether")}
             </div>
           </div>
 
@@ -50,16 +65,33 @@ export function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 font-mono text-[11px] leading-relaxed text-foreground/60">
             <div>
               <div className="text-accent text-[9px] tracking-[0.25em] uppercase mb-2">[ ADDRESS ]</div>
-              <p className="font-light">ELCS Embedded Labs<br />Engineering Sector 7</p>
+              <p className="font-light whitespace-pre-line">
+                {s("footer_address", "ELCS Embedded Labs\nEngineering Sector 7")}
+              </p>
             </div>
             <div>
               <div className="text-accent text-[9px] tracking-[0.25em] uppercase mb-2">[ WHATSAPP ]</div>
-              <a href="#" className="hover:text-accent transition-colors font-light">+00 0000 000 000</a>
+              <a
+                href={s("footer_whatsapp_url", "#")}
+                className="hover:text-accent transition-colors font-light"
+              >
+                {s("footer_whatsapp", "+00 0000 000 000")}
+              </a>
             </div>
             <div>
               <div className="text-accent text-[9px] tracking-[0.25em] uppercase mb-2">[ SOCIAL ]</div>
-              <a href="#" className="block hover:text-accent transition-colors font-light">LinkedIn</a>
-              <a href="#" className="block hover:text-accent transition-colors font-light">Instagram</a>
+              <a
+                href={s("footer_linkedin_url", "#")}
+                className="block hover:text-accent transition-colors font-light"
+              >
+                LinkedIn
+              </a>
+              <a
+                href={s("footer_instagram_url", "#")}
+                className="block hover:text-accent transition-colors font-light"
+              >
+                Instagram
+              </a>
             </div>
           </div>
         </div>
@@ -145,7 +177,7 @@ export function Footer() {
 
       {/* Bottom Bar: Copyright & Top */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 mt-12 pt-6 border-t border-foreground/5 flex flex-col sm:flex-row justify-between items-center gap-4 font-mono text-[9px] text-foreground/35 tracking-widest">
-        <div>© {new Date().getFullYear()} ELCS — ALL SYSTEMS NOMINAL</div>
+        <div>© {new Date().getFullYear()} {s("footer_copyright", "ELCS — ALL SYSTEMS NOMINAL")}</div>
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="text-accent hover:text-accent-glow transition-colors cursor-pointer uppercase tracking-[0.3em]"
