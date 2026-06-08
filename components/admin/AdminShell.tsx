@@ -13,7 +13,7 @@ export function AdminShell({ children, email, name }: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="admin-scope min-h-screen bg-background text-foreground">
 
       {/* ── Mobile top bar ── */}
       <header className="md:hidden fixed top-0 inset-x-0 z-[70] h-14 bg-background/95 backdrop-blur-sm border-b border-foreground/10 flex items-center gap-4 px-4">

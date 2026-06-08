@@ -33,12 +33,15 @@
   --color-ring: var(--ring);
 
   /* Font stacks — next/font injects the actual family via CSS vars */
-  --font-display: var(--ff-display), "Impact", sans-serif;
-  --font-serif: var(--ff-serif), "Georgia", serif;
+  --font-display: var(--ff-sans), system-ui, sans-serif;
+  --font-serif: var(--ff-sans), system-ui, sans-serif;
   --font-sans: var(--ff-sans), system-ui, sans-serif;
-  --font-body: var(--ff-body), "Inter", sans-serif;
-  --font-mono: var(--ff-mono), ui-monospace, monospace;
-  --font-product: var(--ff-product), "DM Sans", system-ui, sans-serif;
+  --font-body: var(--ff-sans), system-ui, sans-serif;
+  --font-mono: var(--ff-sans), system-ui, sans-serif;
+  --font-product: var(--ff-sans), system-ui, sans-serif;
+  /* Admin-specific font vars */
+  --font-admin-display: var(--ff-sans), system-ui, sans-serif;
+  --font-admin-body: var(--ff-sans), system-ui, sans-serif;
 }
 
 :root {
@@ -119,4 +122,12 @@
 }
 @utility font-product {
   font-family: var(--font-product);
+}
+
+/* ── Admin panel font scope ──
+   Any element inside .admin-scope overrides display + body to the clean sans-serif pair */
+.admin-scope {
+  --font-display: var(--ff-sans), system-ui, sans-serif;
+  --font-body:    var(--ff-sans), system-ui, sans-serif;
+  font-family: var(--font-admin-body);
 }

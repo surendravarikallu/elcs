@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client"; // kept for fallback fetch
 import type { CarouselSlide } from "@/types/database";
 
 /* ── Smooth ease-in-out — gentle start, gentle finish ── */
@@ -11,7 +11,8 @@ const EASE: [number, number, number, number] = [0.4, 0, 0.2, 1];
 const DURATION = 0.78;
 const DRAG_THRESHOLD = 40; // px to register as swipe
 
-export function Carousel() {
+// slides prop: null = parent still fetching, array = ready (use it, skip own fetch)
+export function Carousel({ slides: propSlides }: { slides?: CarouselSlide[] | null }) {
   const [slides,    setSlides]    = useState<CarouselSlide[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [current,   setCurrent]   = useState(0);
@@ -19,8 +20,14 @@ export function Carousel() {
   const [paused,    setPaused]    = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  /* ── Fetch published slides ── */
+  /* ── Use pre-fetched slides from parent (images already warming in cache) ── */
   useEffect(() => {
+    if (propSlides !== null && propSlides !== undefined) {
+      setSlides(propSlides);
+      setLoading(false);
+      return;
+    }
+    // Fallback: fetch ourselves if no prop provided
     const sb = createClient();
     sb.from("carousel_slides")
       .select("*")
@@ -30,7 +37,7 @@ export function Carousel() {
         setSlides((data as CarouselSlide[]) ?? []);
         setLoading(false);
       });
-  }, []);
+  }, [propSlides]);
 
   /* ── Navigation helpers ── */
   const go = useCallback((idx: number, dir: 1 | -1) => {
@@ -179,7 +186,7 @@ export function Carousel() {
           <button
             onClick={prev}
             aria-label="Previous slide"
-            className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-9 h-9 border border-foreground/25 text-foreground/50 hover:border-accent hover:text-accent items-center justify-center transition-all font-mono z-10"
+            className="flex absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-9 md:h-9 border border-foreground/25 text-foreground/50 hover:border-accent hover:text-accent items-center justify-center transition-all font-mono z-10"
           >
             ←
           </button>
@@ -187,7 +194,7 @@ export function Carousel() {
           <button
             onClick={next}
             aria-label="Next slide"
-            className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-9 h-9 border border-foreground/25 text-foreground/50 hover:border-accent hover:text-accent items-center justify-center transition-all font-mono z-10"
+            className="flex absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-9 md:h-9 border border-foreground/25 text-foreground/50 hover:border-accent hover:text-accent items-center justify-center transition-all font-mono z-10"
           >
             →
           </button>
@@ -211,10 +218,6 @@ export function Carousel() {
             </span>
           </div>
 
-          {/* Mobile swipe hint — fades after first interaction */}
-          <div className="md:hidden absolute bottom-4 right-5 font-mono text-[8px] text-foreground/25 tracking-[0.2em] z-10">
-            SWIPE
-          </div>
         </>
       )}
     </section>

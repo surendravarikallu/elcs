@@ -1,26 +1,11 @@
 import type { Metadata } from 'next'
-import { Oswald, Caudex, Nunito_Sans, JetBrains_Mono, Inter, DM_Sans } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-/* ── Oswald — display / headings (industrial condensed uppercase) ── */
-const oswald = Oswald({
+/* ── Inter — primary clean, highly readable font family ── */
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--ff-display',
-  display: 'swap',
-})
-
-/* ── Caudex — serif / italic accents ── */
-const caudex = Caudex({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  variable: '--ff-serif',
-  display: 'swap',
-})
-
-/* ── Nunito Sans — body copy ── */
-const nunitoSans = Nunito_Sans({
-  subsets: ['latin'],
-  variable: '--ff-body',
+  variable: '--ff-sans',
   display: 'swap',
 })
 
@@ -28,20 +13,6 @@ const nunitoSans = Nunito_Sans({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--ff-mono',
-  display: 'swap',
-})
-
-/* ── Inter — general sans (hero headings etc.) ── */
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--ff-sans',
-  display: 'swap',
-})
-
-/* ── DM Sans — product names & detail view (humanist, highly legible) ── */
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--ff-product',
   display: 'swap',
 })
 
@@ -63,12 +34,8 @@ export default function RootLayout({
     <html
       lang="en"
       className={`
-        ${oswald.variable}
-        ${caudex.variable}
-        ${nunitoSans.variable}
-        ${jetbrainsMono.variable}
         ${inter.variable}
-        ${dmSans.variable}
+        ${jetbrainsMono.variable}
       `}
     >
       <body className="antialiased">

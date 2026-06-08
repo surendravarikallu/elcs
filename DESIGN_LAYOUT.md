@@ -130,3 +130,36 @@ This document outlines the complete architectural, visual, and behavioral specif
     * Divided neatly from the top tier by an ultra-thin line at `10% opacity`.
     * Organizes technical typography blocks mapping address data, active WhatsApp routing paths, and social infrastructure links (`LinkedIn` / `Instagram`) cleanly across four symmetrical monospace columns using the **Geist Mono** engine framework.
     * Features a minimal click interaction node on the right boundary corner to enable smooth structural scroll reset back to the absolute top of the viewport engine (`Scroll To Top`).
+
+---
+
+## 3. Typography Reference — Original Spec vs. Free Alternatives vs. Live Site
+
+The original design spec used commercially licensed typefaces. The table below maps each to its free Google Fonts alternative and documents what is currently loaded in the production site.
+
+| Role in Design | Original (Licensed) | Free Alternative | Source | Currently in Site (`layout.tsx`) |
+|---|---|---|---|---|
+| Display / Headings / Menu | **Abolition** | **Bebas Neue** | Google Fonts — same ultra-condensed industrial uppercase DNA | `Oswald` via `--ff-display` |
+| Hero Text Overlays / Sub-headings | **Sofia Pro** | **Outfit** | Google Fonts — geometric, same clean proportions | `Inter` via `--ff-sans` |
+| About Section / Editorial Serif | **Caudex** | **Caudex** ✅ | Google Fonts — exact same, available natively | `Caudex` via `--ff-serif` ✅ |
+| Global Body Copy | **Avenir** | **Nunito** / **Nunito Sans** | Google Fonts — humanist, confirmed match | `Nunito Sans` via `--ff-body` ✅ |
+| UI Metrics / Mono Labels / Badges | **Geist Mono** | **Geist Mono** / **JetBrains Mono** | Vercel (free) / Google Fonts | `JetBrains Mono` via `--ff-mono` ✅ |
+| Product Names / Detail Views | *(not in original spec)* | **DM Sans** | Google Fonts — humanist, highly legible | `DM Sans` via `--ff-product` |
+
+### Notes on Current Divergence
+
+- **Display (`--ff-display`):** Site currently uses `Oswald` — a valid condensed industrial font but not as extreme as Bebas Neue. To match the design spec closer, swap `Oswald` → `Bebas Neue` in `app/layout.tsx`.
+- **Sans (`--ff-sans`):** Site uses `Inter` as a general fallback sans. `Outfit` (the Sofia Pro alternative) would better match the original design intent for hero overlays.
+- **Body, Serif, Mono:** All three are on-spec or exact matches — no changes needed.
+
+### To Align Site Fully with Swap Map
+
+In `app/layout.tsx`, replace:
+```ts
+// Current
+import { Oswald, Caudex, Nunito_Sans, JetBrains_Mono, Inter, DM_Sans } from 'next/font/google'
+
+// Target (fully spec-aligned)
+import { Bebas_Neue, Outfit, Caudex, Nunito_Sans, JetBrains_Mono, DM_Sans } from 'next/font/google'
+```
+And rename `oswald` → `bebasNeue`, `inter` → `outfit` with their respective configs. The CSS variable names (`--ff-display`, `--ff-sans`) stay unchanged — no Tailwind or component edits required.
