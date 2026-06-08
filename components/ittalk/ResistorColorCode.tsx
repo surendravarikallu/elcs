@@ -112,63 +112,37 @@ export function ResistorColorCode() {
   const hex6 = colorMap.get(b6) || "#FF0000";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Left pane: Controls */}
-      <div className="lg:col-span-7 space-y-6">
-        <div className="border border-accent/20 bg-card/65 p-6">
-          <div className="font-mono text-[10px] text-accent tracking-widest mb-4">[ BAND MODE ]</div>
-          <div className="flex gap-2">
-            {([4, 5, 6] as const).map((b) => (
-              <button
-                key={b}
-                onClick={() => handleBandChange(b)}
-                className={`py-2 px-4 border font-mono text-[10px] tracking-wider uppercase cursor-pointer transition-all ${
-                  bands === b
-                    ? "border-accent bg-accent/10 text-accent"
-                    : "border-foreground/15 bg-background/30 text-foreground/60 hover:border-foreground/30"
-                }`}
-              >
-                {b} Bands
-              </button>
-            ))}
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left pane: Controls */}
+        <div className="lg:col-span-7 space-y-6">
+          <div className="border border-accent/20 bg-card/65 p-6">
+            <div className="font-mono text-[10px] text-accent tracking-widest mb-4">[ BAND MODE ]</div>
+            <div className="flex gap-2">
+              {([4, 5, 6] as const).map((b) => (
+                <button
+                  key={b}
+                  onClick={() => handleBandChange(b)}
+                  className={`py-2 px-4 border font-mono text-[10px] tracking-wider uppercase cursor-pointer transition-all ${
+                    bands === b
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-foreground/15 bg-background/30 text-foreground/60 hover:border-foreground/30"
+                  }`}
+                >
+                  {b} Bands
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="border border-accent/20 bg-card/65 p-6 space-y-4">
-          <div className="font-mono text-[10px] text-accent tracking-widest">[ BAND SELECTION ]</div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <label className="block font-mono text-[10px] text-foreground/50">Band 1 (1st Digit)</label>
-              <select
-                value={b1}
-                onChange={(e) => handleSelection(setB1, e.target.value)}
-                className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
-              >
-                {COLORS.filter((c) => c.digit !== null).map((c) => (
-                  <option key={c.name} value={c.name}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="block font-mono text-[10px] text-foreground/50">Band 2 (2nd Digit)</label>
-              <select
-                value={b2}
-                onChange={(e) => handleSelection(setB2, e.target.value)}
-                className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
-              >
-                {COLORS.filter((c) => c.digit !== null).map((c) => (
-                  <option key={c.name} value={c.name}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {bands > 4 ? (
+          <div className="border border-accent/20 bg-card/65 p-6 space-y-4">
+            <div className="font-mono text-[10px] text-accent tracking-widest">[ BAND SELECTION ]</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Band 3 (3rd Digit)</label>
+                <label className="block font-mono text-[10px] text-foreground/50">Band 1 (1st Digit)</label>
                 <select
-                  value={b3}
-                  onChange={(e) => handleSelection(setB3, e.target.value)}
+                  value={b1}
+                  onChange={(e) => handleSelection(setB1, e.target.value)}
                   className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
                 >
                   {COLORS.filter((c) => c.digit !== null).map((c) => (
@@ -176,151 +150,287 @@ export function ResistorColorCode() {
                   ))}
                 </select>
               </div>
-            ) : (
-              <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Band 3 (Multiplier)</label>
-                <select
-                  value={b3}
-                  onChange={(e) => handleSelection(setB3, e.target.value)}
-                  className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
-                >
-                  {COLORS.filter((c) => c.multiplier !== null).map((c) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-            )}
 
-            {bands > 4 && (
               <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Band 4 (Multiplier)</label>
+                <label className="block font-mono text-[10px] text-foreground/50">Band 2 (2nd Digit)</label>
                 <select
-                  value={b4}
-                  onChange={(e) => handleSelection(setB4, e.target.value)}
+                  value={b2}
+                  onChange={(e) => handleSelection(setB2, e.target.value)}
                   className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
                 >
-                  {COLORS.filter((c) => c.multiplier !== null).map((c) => (
+                  {COLORS.filter((c) => c.digit !== null).map((c) => (
                     <option key={c.name} value={c.name}>{c.name}</option>
                   ))}
                 </select>
               </div>
-            )}
 
-            {bands === 4 ? (
-              <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Band 4 (Tolerance)</label>
-                <select
-                  value={b4}
-                  onChange={(e) => handleSelection(setB4, e.target.value)}
-                  className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
-                >
-                  {COLORS.filter((c) => c.tolerance !== null).map((c) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Band 5 (Tolerance)</label>
-                <select
-                  value={b5}
-                  onChange={(e) => handleSelection(setB5, e.target.value)}
-                  className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
-                >
-                  {COLORS.filter((c) => c.tolerance !== null).map((c) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+              {bands > 4 ? (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Band 3 (3rd Digit)</label>
+                  <select
+                    value={b3}
+                    onChange={(e) => handleSelection(setB3, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
+                  >
+                    {COLORS.filter((c) => c.digit !== null).map((c) => (
+                      <option key={c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Band 3 (Multiplier)</label>
+                  <select
+                    value={b3}
+                    onChange={(e) => handleSelection(setB3, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
+                  >
+                    {COLORS.filter((c) => c.multiplier !== null).map((c) => (
+                      <option key={c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-            {bands === 6 && (
-              <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Band 6 (Temp Coeff)</label>
-                <select
-                  value={b6}
-                  onChange={(e) => handleSelection(setB6, e.target.value)}
-                  className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
-                >
-                  {COLORS.filter((c) => c.tempCoeff !== null).map((c) => (
-                    <option key={c.name} value={c.name}>{c.name} ({c.tempCoeff} ppm)</option>
-                  ))}
-                </select>
+              {bands > 4 && (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Band 4 (Multiplier)</label>
+                  <select
+                    value={b4}
+                    onChange={(e) => handleSelection(setB4, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
+                  >
+                    {COLORS.filter((c) => c.multiplier !== null).map((c) => (
+                      <option key={c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {bands === 4 ? (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Band 4 (Tolerance)</label>
+                  <select
+                    value={b4}
+                    onChange={(e) => handleSelection(setB4, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
+                  >
+                    {COLORS.filter((c) => c.tolerance !== null).map((c) => (
+                      <option key={c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Band 5 (Tolerance)</label>
+                  <select
+                    value={b5}
+                    onChange={(e) => handleSelection(setB5, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
+                  >
+                    {COLORS.filter((c) => c.tolerance !== null).map((c) => (
+                      <option key={c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {bands === 6 && (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Band 6 (Temp Coeff)</label>
+                  <select
+                    value={b6}
+                    onChange={(e) => handleSelection(setB6, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
+                  >
+                    {COLORS.filter((c) => c.tempCoeff !== null).map((c) => (
+                      <option key={c.name} value={c.name}>{c.name} ({c.tempCoeff} ppm)</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Readout panel */}
+          <div className="border border-accent-glow bg-accent/5 p-6 flex flex-col items-center justify-center text-center">
+            <div className="font-mono text-[10px] text-accent tracking-widest mb-2">[ RESISTANCE VALUE ]</div>
+            <div className="font-mono text-4xl font-light text-accent-glow">
+              {formatValue(resistance)}
+              <span className="text-xl ml-2 font-normal text-foreground/60">±{tolerance}%</span>
+            </div>
+            {tempCo !== null && (
+              <div className="font-mono text-xs text-accent mt-2">
+                Temperature Coefficient: {tempCo} ppm/K
               </div>
             )}
           </div>
         </div>
 
-        {/* Readout panel */}
-        <div className="border border-accent-glow bg-accent/5 p-6 flex flex-col items-center justify-center text-center">
-          <div className="font-mono text-[10px] text-accent tracking-widest mb-2">[ RESISTANCE VALUE ]</div>
-          <div className="font-mono text-4xl font-light text-accent-glow">
-            {formatValue(resistance)}
-            <span className="text-xl ml-2 font-normal text-foreground/60">±{tolerance}%</span>
+        {/* Right pane: Resistor Graphic & Theory */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* SVG Resistor representation */}
+          <div className="border border-accent/20 bg-card/65 p-6 flex flex-col items-center justify-center min-h-[220px]">
+            <div className="font-mono text-[10px] text-accent tracking-widest mb-6 align-self-start">[ PHYSICAL MODEL ]</div>
+            
+            <svg viewBox="0 0 260 100" className="w-full h-24 max-w-[280px]">
+              {/* Lead Wires */}
+              <line x1="10" y1="50" x2="60" y2="50" stroke="#7A8B99" strokeWidth="3.5" />
+              <line x1="200" y1="50" x2="250" y2="50" stroke="#7A8B99" strokeWidth="3.5" />
+
+              {/* Resistor Body */}
+              <rect x="50" y="30" width="160" height="40" fill="#E6D3B3" rx="5" stroke="rgba(0,0,0,0.15)" strokeWidth="1" />
+              
+              {/* Color Bands */}
+              {bands === 4 ? (
+                <>
+                  <rect x="75" y="30" width="8" height="40" fill={hex1} />
+                  <rect x="105" y="30" width="8" height="40" fill={hex2} />
+                  <rect x="135" y="30" width="8" height="40" fill={hex3} />
+                  <rect x="175" y="30" width="8" height="40" fill={hex4} />
+                </>
+              ) : bands === 5 ? (
+                <>
+                  <rect x="70" y="30" width="8" height="40" fill={hex1} />
+                  <rect x="95" y="30" width="8" height="40" fill={hex2} />
+                  <rect x="120" y="30" width="8" height="40" fill={hex3} />
+                  <rect x="145" y="30" width="8" height="40" fill={hex4} />
+                  <rect x="180" y="30" width="8" height="40" fill={hex5} />
+                </>
+              ) : (
+                <>
+                  <rect x="65" y="30" width="8" height="40" fill={hex1} />
+                  <rect x="88" y="30" width="8" height="40" fill={hex2} />
+                  <rect x="110" y="30" width="8" height="40" fill={hex3} />
+                  <rect x="132" y="30" width="8" height="40" fill={hex4} />
+                  <rect x="160" y="30" width="8" height="40" fill={hex5} />
+                  <rect x="185" y="30" width="8" height="40" fill={hex6} />
+                </>
+              )}
+            </svg>
           </div>
-          {tempCo !== null && (
-            <div className="font-mono text-xs text-accent mt-2">
-              Temperature Coefficient: {tempCo} ppm/K
-            </div>
-          )}
+
+          {/* Theory */}
+          <div className="border border-accent/20 bg-card/65 p-6 space-y-3 font-body text-xs text-foreground/70 leading-relaxed">
+            <div className="font-mono text-[10px] text-accent tracking-widest uppercase mb-1">[ HOW TO READ ]</div>
+            <p>
+              Read bands from <strong>left to right</strong>. The first band is the one closest to one end of the resistor.
+            </p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li><strong>4-band</strong>: Digit 1, Digit 2, Multiplier, Tolerance.</li>
+              <li><strong>5-band</strong>: Digit 1, Digit 2, Digit 3, Multiplier, Tolerance.</li>
+              <li><strong>6-band</strong>: Adds Temperature Coefficient (ppm/K) at the end.</li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      {/* Right pane: Resistor Graphic & Theory */}
-      <div className="lg:col-span-5 space-y-6">
-        {/* SVG Resistor representation */}
-        <div className="border border-accent/20 bg-card/65 p-6 flex flex-col items-center justify-center min-h-[220px]">
-          <div className="font-mono text-[10px] text-accent tracking-widest mb-6 align-self-start">[ PHYSICAL MODEL ]</div>
-          
-          <svg viewBox="0 0 260 100" className="w-full h-24 max-w-[280px]">
-            {/* Lead Wires */}
-            <line x1="10" y1="50" x2="60" y2="50" stroke="#7A8B99" strokeWidth="3.5" />
-            <line x1="200" y1="50" x2="250" y2="50" stroke="#7A8B99" strokeWidth="3.5" />
-
-            {/* Resistor Body */}
-            <rect x="50" y="30" width="160" height="40" fill="#E6D3B3" rx="5" stroke="rgba(0,0,0,0.15)" strokeWidth="1" />
-            
-            {/* Color Bands */}
-            {bands === 4 ? (
-              <>
-                <rect x="75" y="30" width="8" height="40" fill={hex1} />
-                <rect x="105" y="30" width="8" height="40" fill={hex2} />
-                <rect x="135" y="30" width="8" height="40" fill={hex3} />
-                <rect x="175" y="30" width="8" height="40" fill={hex4} />
-              </>
-            ) : bands === 5 ? (
-              <>
-                <rect x="70" y="30" width="8" height="40" fill={hex1} />
-                <rect x="95" y="30" width="8" height="40" fill={hex2} />
-                <rect x="120" y="30" width="8" height="40" fill={hex3} />
-                <rect x="145" y="30" width="8" height="40" fill={hex4} />
-                <rect x="180" y="30" width="8" height="40" fill={hex5} />
-              </>
-            ) : (
-              <>
-                <rect x="65" y="30" width="8" height="40" fill={hex1} />
-                <rect x="88" y="30" width="8" height="40" fill={hex2} />
-                <rect x="110" y="30" width="8" height="40" fill={hex3} />
-                <rect x="132" y="30" width="8" height="40" fill={hex4} />
-                <rect x="160" y="30" width="8" height="40" fill={hex5} />
-                <rect x="185" y="30" width="8" height="40" fill={hex6} />
-              </>
-            )}
-          </svg>
-        </div>
-
-        {/* Theory */}
-        <div className="border border-accent/20 bg-card/65 p-6 space-y-3 font-body text-xs text-foreground/70 leading-relaxed">
-          <div className="font-mono text-[10px] text-accent tracking-widest uppercase mb-1">[ HOW TO READ ]</div>
-          <p>
-            Read bands from <strong>left to right</strong>. The first band is the one closest to one end of the resistor.
-          </p>
-          <ul className="list-disc pl-4 space-y-1">
-            <li><strong>4-band</strong>: Digit 1, Digit 2, Multiplier, Tolerance.</li>
-            <li><strong>5-band</strong>: Digit 1, Digit 2, Digit 3, Multiplier, Tolerance.</li>
-            <li><strong>6-band</strong>: Adds Temperature Coefficient (ppm/K) at the end.</li>
-          </ul>
-        </div>
+      {/* Detailed Theory & Specifications */}
+      <div className="border border-accent/20 bg-card/65 rounded-sm">
+        <details className="group">
+          <summary className="flex items-center justify-between p-5 font-mono text-[10px] text-accent tracking-widest uppercase cursor-pointer select-none hover:bg-accent/5 transition-colors list-none [&::-webkit-details-marker]:hidden">
+            <span>[ DETAILED THEORY & SPECIFICATIONS ]</span>
+            <span className="text-[10px] text-accent/50 transition-transform duration-300 group-open:rotate-180">▼</span>
+          </summary>
+          <div className="p-6 border-t border-foreground/10 font-body text-xs text-foreground/70 space-y-6 leading-relaxed">
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">What is Resistor Color Code?</h4>
+              <p>
+                Resistor color codes are a standardized system of colored bands painted on resistors to indicate their resistance value, tolerance, and sometimes temperature coefficient. This system allows quick identification without needing measuring equipment.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Common Applications:</h4>
+              <ol className="list-decimal pl-4 space-y-1">
+                <li>Quick resistor identification in circuits</li>
+                <li>Verifying component values during assembly</li>
+                <li>Selecting correct replacement resistors</li>
+                <li>Educational and learning purposes</li>
+              </ol>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">How It Works:</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Each color represents a specific digit (0-9) or multiplier value.</li>
+                <li>4-band resistors: 1st digit + 2nd digit + multiplier + tolerance.</li>
+                <li>5-band resistors: 1st digit + 2nd digit + 3rd digit + multiplier + tolerance.</li>
+                <li>6-band resistors: 3 digits + multiplier + tolerance + temperature coefficient.</li>
+                <li>Read bands from left to right, starting from the band closest to one end.</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Formula Variables:</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-foreground/10 text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-foreground/15 bg-foreground/5 font-mono text-[10px] uppercase text-accent">
+                      <th className="p-2 border-r border-foreground/10">Symbol</th>
+                      <th className="p-2">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono">D1</td>
+                      <td className="p-2">First color band value (0-9)</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono">D2</td>
+                      <td className="p-2">Second color band value (0-9)</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono">Multiplier</td>
+                      <td className="p-2">Power of 10 (×1, ×10, ×100, etc.)</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono">Tolerance</td>
+                      <td className="p-2">Accuracy range (±%)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Formulas:</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>4-band: Resistance = (D1 × 10 + D2) × Multiplier</li>
+                <li>5-band: Resistance = (D1 × 100 + D2 × 10 + D3) × Multiplier</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Key Features:</h4>
+              <p>4, 5, and 6-band support | Reverse color code lookup | Tolerance calculation | Temperature coefficient (6-band) | Visual resistor display</p>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Specifications:</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-foreground/10 text-left text-xs">
+                  <tbody>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Band Types</td>
+                      <td className="p-2">4, 5, 6 bands</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Range</td>
+                      <td className="p-2">0.1Ω - 99MΩ</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Tolerance</td>
+                      <td className="p-2">±0.05% to ±20%</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Temp Coefficient</td>
+                      <td className="p-2">Available for 6-band</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Output</td>
+                      <td className="p-2">Resistance, Tolerance</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
   );

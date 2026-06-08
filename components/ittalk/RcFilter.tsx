@@ -168,132 +168,256 @@ export function RcFilter() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Left pane: Controls */}
-      <div className="lg:col-span-7 space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="border border-accent/20 bg-card/65 p-5">
-            <div className="font-mono text-[10px] text-accent tracking-widest mb-3">[ FILTER TYPE ]</div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleFilterChange("lowpass")}
-                className={`flex-1 py-2 border font-mono text-[10px] tracking-wider uppercase cursor-pointer transition-all ${
-                  filterType === "lowpass"
-                    ? "border-accent bg-accent/10 text-accent"
-                    : "border-foreground/15 bg-background/30 text-foreground/60 hover:border-foreground/30"
-                }`}
-              >
-                Low Pass
-              </button>
-              <button
-                onClick={() => handleFilterChange("highpass")}
-                className={`flex-1 py-2 border font-mono text-[10px] tracking-wider uppercase cursor-pointer transition-all ${
-                  filterType === "highpass"
-                    ? "border-accent bg-accent/10 text-accent"
-                    : "border-foreground/15 bg-background/30 text-foreground/60 hover:border-foreground/30"
-                }`}
-              >
-                High Pass
-              </button>
-            </div>
-          </div>
-
-          <div className="border border-accent/20 bg-card/65 p-5">
-            <div className="font-mono text-[10px] text-accent tracking-widest mb-3">[ SOLVE TARGET ]</div>
-            <div className="flex gap-1.5">
-              {(["fc", "r", "c"] as const).map((s) => (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left pane: Controls */}
+        <div className="lg:col-span-7 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="border border-accent/20 bg-card/65 p-5">
+              <div className="font-mono text-[10px] text-accent tracking-widest mb-3">[ FILTER TYPE ]</div>
+              <div className="flex gap-2">
                 <button
-                  key={s}
-                  onClick={() => handleSolveForChange(s)}
+                  onClick={() => handleFilterChange("lowpass")}
                   className={`flex-1 py-2 border font-mono text-[10px] tracking-wider uppercase cursor-pointer transition-all ${
-                    solveFor === s
+                    filterType === "lowpass"
                       ? "border-accent bg-accent/10 text-accent"
                       : "border-foreground/15 bg-background/30 text-foreground/60 hover:border-foreground/30"
                   }`}
                 >
-                  Solve {s === "fc" ? "fc" : s.toUpperCase()}
+                  Low Pass
                 </button>
-              ))}
+                <button
+                  onClick={() => handleFilterChange("highpass")}
+                  className={`flex-1 py-2 border font-mono text-[10px] tracking-wider uppercase cursor-pointer transition-all ${
+                    filterType === "highpass"
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-foreground/15 bg-background/30 text-foreground/60 hover:border-foreground/30"
+                  }`}
+                >
+                  High Pass
+                </button>
+              </div>
+            </div>
+
+            <div className="border border-accent/20 bg-card/65 p-5">
+              <div className="font-mono text-[10px] text-accent tracking-widest mb-3">[ SOLVE TARGET ]</div>
+              <div className="flex gap-1.5">
+                {(["fc", "r", "c"] as const).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => handleSolveForChange(s)}
+                    className={`flex-1 py-2 border font-mono text-[10px] tracking-wider uppercase cursor-pointer transition-all ${
+                      solveFor === s
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-foreground/15 bg-background/30 text-foreground/60 hover:border-foreground/30"
+                    }`}
+                  >
+                    Solve {s === "fc" ? "fc" : s.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="border border-accent/20 bg-card/65 p-6 space-y-4">
+            <div className="font-mono text-[10px] text-accent tracking-widest">[ TUNING PARAMETERS ]</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {solveFor !== "r" && (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Resistance (Ω)</label>
+                  <input
+                    type="number"
+                    value={rVal}
+                    onChange={(e) => handleInputChange(setRVal, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-sm text-foreground focus:outline-none focus:border-accent"
+                  />
+                </div>
+              )}
+              {solveFor !== "c" && (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Capacitance (F)</label>
+                  <input
+                    type="text"
+                    value={cVal}
+                    placeholder="e.g. 1e-7"
+                    onChange={(e) => handleInputChange(setCVal, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-sm text-foreground focus:outline-none focus:border-accent"
+                  />
+                </div>
+              )}
+              {solveFor !== "fc" && (
+                <div className="space-y-1">
+                  <label className="block font-mono text-[10px] text-foreground/50">Cutoff Freq fc (Hz)</label>
+                  <input
+                    type="number"
+                    value={fcVal}
+                    onChange={(e) => handleInputChange(setFcVal, e.target.value)}
+                    className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-sm text-foreground focus:outline-none focus:border-accent"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Readout panel */}
+          <div className="border border-accent-glow bg-accent/5 p-6 flex flex-col items-center justify-center text-center">
+            <div className="font-mono text-[10px] text-accent tracking-widest mb-2">[ FREQUENCY DETAILS ]</div>
+            <div className="font-mono text-4xl font-light text-accent-glow">
+              fc = {formatFreq(solvedFc)}
+            </div>
+            <div className="font-mono text-[10px] text-foreground/50 mt-2">
+              R = {solvedR.toFixed(1)} Ω | C = {(solvedC * 1e6).toFixed(4)} µF
             </div>
           </div>
         </div>
 
-        <div className="border border-accent/20 bg-card/65 p-6 space-y-4">
-          <div className="font-mono text-[10px] text-accent tracking-widest">[ TUNING PARAMETERS ]</div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {solveFor !== "r" && (
-              <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Resistance (Ω)</label>
-                <input
-                  type="number"
-                  value={rVal}
-                  onChange={(e) => handleInputChange(setRVal, e.target.value)}
-                  className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-sm text-foreground focus:outline-none focus:border-accent"
-                />
-              </div>
-            )}
-            {solveFor !== "c" && (
-              <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Capacitance (F)</label>
-                <input
-                  type="text"
-                  value={cVal}
-                  placeholder="e.g. 1e-7"
-                  onChange={(e) => handleInputChange(setCVal, e.target.value)}
-                  className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-sm text-foreground focus:outline-none focus:border-accent"
-                />
-              </div>
-            )}
-            {solveFor !== "fc" && (
-              <div className="space-y-1">
-                <label className="block font-mono text-[10px] text-foreground/50">Cutoff Freq fc (Hz)</label>
-                <input
-                  type="number"
-                  value={fcVal}
-                  onChange={(e) => handleInputChange(setFcVal, e.target.value)}
-                  className="w-full bg-background border border-foreground/15 py-2 px-3 font-mono text-sm text-foreground focus:outline-none focus:border-accent"
-                />
-              </div>
-            )}
+        {/* Right pane: Bode Plot & Theory */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Bode Plot Canvas */}
+          <div className="border border-accent/20 bg-card/65 p-6 flex flex-col items-center justify-center min-h-[220px]">
+            <div className="font-mono text-[10px] text-accent tracking-widest mb-4 align-self-start">[ BODE PLOT (GAIN FREQ RESPONSE) ]</div>
+            <canvas
+              ref={canvasRef}
+              width={300}
+              height={160}
+              className="w-full h-40 bg-background/50 border border-foreground/10"
+            />
           </div>
-        </div>
 
-        {/* Readout panel */}
-        <div className="border border-accent-glow bg-accent/5 p-6 flex flex-col items-center justify-center text-center">
-          <div className="font-mono text-[10px] text-accent tracking-widest mb-2">[ FREQUENCY DETAILS ]</div>
-          <div className="font-mono text-4xl font-light text-accent-glow">
-            fc = {formatFreq(solvedFc)}
-          </div>
-          <div className="font-mono text-[10px] text-foreground/50 mt-2">
-            R = {solvedR.toFixed(1)} Ω | C = {(solvedC * 1e6).toFixed(4)} µF
+          {/* Theory */}
+          <div className="border border-accent/20 bg-card/65 p-6 space-y-3 font-body text-xs text-foreground/70 leading-relaxed">
+            <div className="font-mono text-[10px] text-accent tracking-widest uppercase mb-1">[ THE THEORY ]</div>
+            <p>
+              An <strong>RC filter</strong> is a passive circuit containing a resistor (R) and capacitor (C).
+            </p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li><strong>Low-Pass Filter (LPF)</strong>: Attenuates frequencies <em>above</em> $f_c$ at -20dB/decade. Used to smooth PWM signals or clean high-frequency noise from sensors.</li>
+              <li><strong>High-Pass Filter (HPF)</strong>: Blocks DC and low frequencies <em>below</em> $f_c$. Mainly used to remove DC offsets and slowly varying signals.</li>
+            </ul>
           </div>
         </div>
       </div>
 
-      {/* Right pane: Bode Plot & Theory */}
-      <div className="lg:col-span-5 space-y-6">
-        {/* Bode Plot Canvas */}
-        <div className="border border-accent/20 bg-card/65 p-6 flex flex-col items-center justify-center min-h-[220px]">
-          <div className="font-mono text-[10px] text-accent tracking-widest mb-4 align-self-start">[ BODE PLOT (GAIN FREQ RESPONSE) ]</div>
-          <canvas
-            ref={canvasRef}
-            width={300}
-            height={160}
-            className="w-full h-40 bg-background/50 border border-foreground/10"
-          />
-        </div>
-
-        {/* Theory */}
-        <div className="border border-accent/20 bg-card/65 p-6 space-y-3 font-body text-xs text-foreground/70 leading-relaxed">
-          <div className="font-mono text-[10px] text-accent tracking-widest uppercase mb-1">[ THE THEORY ]</div>
-          <p>
-            An <strong>RC filter</strong> is a passive circuit containing a resistor (R) and capacitor (C).
-          </p>
-          <ul className="list-disc pl-4 space-y-1">
-            <li><strong>Low-Pass Filter (LPF)</strong>: Attenuates frequencies <em>above</em> $f_c$ at -20dB/decade. Used to smooth PWM signals or clean high-frequency noise from sensors.</li>
-            <li><strong>High-Pass Filter (HPF)</strong>: Blocks DC and low frequencies <em>below</em> $f_c$. Mainly used to remove DC offsets and slowly varying signals.</li>
-          </ul>
-        </div>
+      {/* Detailed Theory & Specifications */}
+      <div className="border border-accent/20 bg-card/65 rounded-sm">
+        <details className="group">
+          <summary className="flex items-center justify-between p-5 font-mono text-[10px] text-accent tracking-widest uppercase cursor-pointer select-none hover:bg-accent/5 transition-colors list-none [&::-webkit-details-marker]:hidden">
+            <span>[ DETAILED THEORY & SPECIFICATIONS ]</span>
+            <span className="text-[10px] text-accent/50 transition-transform duration-300 group-open:rotate-180">▼</span>
+          </summary>
+          <div className="p-6 border-t border-foreground/10 font-body text-xs text-foreground/70 space-y-6 leading-relaxed">
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">What is an RC Filter?</h4>
+              <p>
+                An RC filter is a basic analog circuit made using a resistor (R) and a capacitor (C). It is used to control which frequencies pass through a circuit and which are blocked. RC filters are simple, low-cost, and widely used in electronic systems.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Common Applications:</h4>
+              <ol className="list-decimal pl-4 space-y-1">
+                <li>Noise reduction</li>
+                <li>Signal smoothing</li>
+                <li>Audio processing</li>
+                <li>Sensor signal filtering</li>
+                <li>ADC input conditioning</li>
+              </ol>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Low-Pass Filter (LPF):</h4>
+              <p>
+                A Low-Pass Filter (LPF) allows low-frequency signals to pass and attenuates high-frequency signals. It is mainly used to remove high-frequency noise from signals.
+              </p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li><strong>Circuit:</strong> Resistor R connected in series with input, Capacitor C connected from output to ground. Output voltage taken across the capacitor.</li>
+                <li><strong>Uses:</strong> Removing noise from sensor signals | Smoothing PWM signals to analog voltage | Audio bass filtering | ADC input protection</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">High-Pass Filter (HPF):</h4>
+              <p>
+                A High-Pass Filter (HPF) allows high-frequency signals to pass and blocks low-frequency (DC) signals. It is commonly used to remove DC offset and slow variations.
+              </p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li><strong>Circuit:</strong> Capacitor C connected in series with input, Resistor R connected from output to ground. Output voltage taken across the resistor.</li>
+                <li><strong>Uses:</strong> Removing DC offset | Audio treble filtering | Signal coupling between stages | Vibration and motion sensing</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Formula:</h4>
+              <p className="font-mono text-accent text-sm">fc = 1 / (2πRC)</p>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Formula Variables:</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-foreground/10 text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-foreground/15 bg-foreground/5 font-mono text-[10px] uppercase text-accent">
+                      <th className="p-2 border-r border-foreground/10">Symbol</th>
+                      <th className="p-2">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono">R</td>
+                      <td className="p-2">Resistance (Ω)</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono">C</td>
+                      <td className="p-2">Capacitance (F)</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono">fc</td>
+                      <td className="p-2">Cutoff Frequency (Hz)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Notes:</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>RC filters are first-order filters.</li>
+                <li>Attenuation rate is 20 dB/decade.</li>
+                <li>Cutoff frequency depends on both R and C.</li>
+                <li>Output amplitude changes gradually, not suddenly.</li>
+                <li>At cutoff frequency, output voltage drops to 70.7% of input.</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Key Features:</h4>
+              <p>Low-pass filter design | High-pass filter design | Cutoff frequency calculation | Component value calculation | Frequency response graph</p>
+            </div>
+            <div>
+              <h4 className="font-mono text-accent text-[11px] uppercase tracking-wider mb-2">Specifications:</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-foreground/10 text-left text-xs">
+                  <tbody>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Formula</td>
+                      <td className="p-2">fc = 1 / (2πRC)</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Rolloff</td>
+                      <td className="p-2">-20dB/decade</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Frequency Range</td>
+                      <td className="p-2">0.1Hz - 10MHz</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Components</td>
+                      <td className="p-2">Resistor, Capacitor</td>
+                    </tr>
+                    <tr className="border-b border-foreground/10">
+                      <td className="p-2 border-r border-foreground/10 font-mono text-accent">Output</td>
+                      <td className="p-2">Cutoff frequency, R, C values</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
   );
