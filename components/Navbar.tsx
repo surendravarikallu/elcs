@@ -125,12 +125,12 @@ export function NavBar({ open, onToggle }: { open: boolean; onToggle: () => void
         transition={{ duration: 0.2 }}
       >
         <Link href="/">
-          <ElcsLogo className="h-10 w-auto object-contain" />
+          <ElcsLogo className="h-16 md:h-20 w-auto object-contain" />
         </Link>
       </motion.div>
 
       {/* Desktop Links (Centered in the Pill) */}
-      <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 font-sans text-[11px] font-semibold tracking-[0.2em] uppercase">
+      <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-10 font-sans text-[14px] font-semibold tracking-[0.18em] uppercase">
         {LINKS.map((l) => {
           const isActive = l.href === "/" ? pathname === "/" : pathname?.startsWith(l.href);
           return (
