@@ -7,6 +7,7 @@ import { MenuOverlay } from "@/components/MenuOverlay";
 import { Carousel } from "@/components/sections/Carousel";
 import { AboutBento } from "@/components/sections/About";
 import { ThreeCs } from "@/components/sections/ThreeCs";
+import { Partners } from "@/components/sections/Partners";
 import { Footer } from "@/components/sections/Footer";
 import { createClient } from "@/lib/supabase/client";
 import type { CarouselSlide } from "@/types/database";
@@ -46,6 +47,7 @@ export default function Home() {
         <Carousel slides={slides} />
         <AboutBento />
         <ThreeCs />
+        <Partners />
       </main>
       <Footer />
     </div>
