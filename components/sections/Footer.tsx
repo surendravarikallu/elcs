@@ -55,7 +55,7 @@ export function Footer() {
         {/* Left Column: Branding & Info */}
         <div className="flex flex-col justify-between space-y-10">
           <div>
-            <ElcsLogo className="h-10 w-auto mb-4 object-contain" />
+            <ElcsLogo className="h-24 md:h-36 lg:h-40 w-auto mb-4 object-contain" />
             <div className="font-mono text-xs tracking-[0.3em] text-foreground/40 uppercase">
               {s("footer_tagline", "#ConnectTogether")}
             </div>
