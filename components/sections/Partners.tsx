@@ -491,14 +491,17 @@ function PartnerLogo({ name }: { name: string }) {
   }
 
   return (
-    <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center p-2 bg-transparent">
-      <Image
-        src={src}
-        alt={name}
-        fill
-        sizes="(max-width: 640px) 56px, (max-width: 1024px) 96px, 140px"
-        className={`object-contain p-2.5 transition-all duration-300 ${blendClass}`}
-      />
+    <div className="relative w-full h-full flex items-center justify-center">
+      {/* Inner white circle that clips the logo into a circular shape */}
+      <div className="relative w-[78%] h-[78%] rounded-full overflow-hidden bg-white/95 shadow-[inset_0_0_8px_rgba(0,0,0,0.08)]">
+        <Image
+          src={src}
+          alt={name}
+          fill
+          sizes="(max-width: 640px) 40px, (max-width: 1024px) 72px, 108px"
+          className={`object-contain p-1.5 sm:p-2 md:p-3 transition-all duration-300 ${blendClass}`}
+        />
+      </div>
     </div>
   );
 }
