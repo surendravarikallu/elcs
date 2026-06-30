@@ -468,24 +468,23 @@ function PartnerLogo({ name }: { name: string }) {
   switch (name) {
     case "Zenith Tek":
       src = "/images/partners/zenith_tek.jpg";
-      blendClass = "mix-blend-multiply brightness-95 contrast-105";
+      blendClass = "brightness-110 contrast-105";
       break;
     case "FAA Robotics":
       src = "/images/partners/faa_robotics.jpg";
-      blendClass = "mix-blend-multiply";
+      blendClass = "brightness-110";
       break;
     case "ebezz":
       src = "/images/partners/ebezz.jpg";
-      // ebezz has a dark blue background; mix-blend-screen preserves the light logo graphics.
-      blendClass = "mix-blend-screen brightness-125 contrast-110";
+      blendClass = "brightness-125 contrast-110";
       break;
     case "mark 3D":
       src = "/images/partners/mark_3d.png";
-      blendClass = "mix-blend-multiply";
+      blendClass = "brightness-110";
       break;
     case "HSAIT":
       src = "/images/partners/hsait.png";
-      blendClass = "mix-blend-multiply";
+      blendClass = "brightness-110";
       break;
     default:
       return null;
@@ -511,17 +510,17 @@ function PartnerLogo({ name }: { name: string }) {
 function LogoBadge({ partner, isLit }: { partner: (typeof PARTNERS)[number]; isLit: boolean }) {
   return (
     <motion.div
-      className="rounded-full border flex items-center justify-center cursor-pointer relative group w-[56px] h-[56px] sm:w-[96px] sm:h-[96px] md:w-[140px] md:h-[140px]"
+      className="rounded-full border-2 flex items-center justify-center cursor-pointer relative group w-[56px] h-[56px] sm:w-[96px] sm:h-[96px] md:w-[140px] md:h-[140px]"
       initial={false}
       animate={{
         borderColor: isLit ? "oklch(0.78 0.13 85)" : "oklch(0.78 0.13 85 / 0.35)",
-        // A luxurious metallic gold gradient
+        // Transparent background so the logo is clearly visible inside the gold ring
         background: isLit 
-          ? "linear-gradient(135deg, oklch(0.85 0.12 85) 0%, oklch(0.75 0.14 85) 50%, oklch(0.65 0.15 85) 100%)" 
-          : "linear-gradient(135deg, oklch(0.80 0.10 85 / 0.8) 0%, oklch(0.70 0.11 85 / 0.8) 50%, oklch(0.60 0.12 85 / 0.8) 100%)",
+          ? "oklch(0.12 0.005 240 / 0.85)" 
+          : "oklch(0.10 0.003 240 / 0.65)",
         boxShadow: isLit 
-          ? "0 0 35px oklch(0.78 0.13 85 / 0.55), inset 0 1px 2px oklch(0 0 0 / 0.2)"
-          : "0 0 15px oklch(0.78 0.13 85 / 0.2), inset 0 1px 2px oklch(0 0 0 / 0.1)",
+          ? "0 0 35px oklch(0.78 0.13 85 / 0.55), inset 0 0 20px oklch(0.78 0.13 85 / 0.08)"
+          : "0 0 15px oklch(0.78 0.13 85 / 0.2), inset 0 0 10px oklch(0.78 0.13 85 / 0.04)",
         scale: isLit ? 1.12 : 1,
       }}
       transition={{ type: "spring", stiffness: 150, damping: 20 }}
