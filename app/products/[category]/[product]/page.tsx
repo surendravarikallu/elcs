@@ -175,7 +175,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   {prod.datasheetUrl ? (
                     <a
                       href={prod.datasheetUrl}
-                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2.5 px-5 py-3.5 bg-accent text-background font-mono text-[10px] font-bold tracking-widest rounded transition-all duration-300 hover:bg-accent-glow hover:shadow-[0_0_20px_oklch(0.78_0.13_85_/_0.3)] text-center"
                     >
                       <svg
@@ -192,7 +193,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                         <line x1="12" y1="18" x2="12" y2="12" />
                         <polyline points="9 15 12 18 15 15" />
                       </svg>
-                      DOWNLOAD DATASHEET
+                      VIEW DATASHEET
                     </a>
                   ) : (
                     <button

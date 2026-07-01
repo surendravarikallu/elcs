@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SD Card Module (Horizontal) — Datasheet | ELCS</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Inter', -apple-system, sans-serif;
+      color: #1a1a1a;
+      background: #ffffff;
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ── Page Container ── */
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    @media print {
+      .page { padding: 0; max-width: none; }
+      .no-print { display: none !important; }
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid #c8a92e;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-name {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #c8a92e;
+    }
+
+    .brand-tagline {
+      font-size: 8px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #888;
+    }
+
+    .doc-info {
+      text-align: right;
+      font-size: 10px;
+      color: #666;
+      line-height: 1.8;
+    }
+
+    .doc-info strong {
+      color: #333;
+    }
+
+    .doc-type {
+      display: inline-block;
+      background: #c8a92e;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 2px;
+      margin-bottom: 6px;
+    }
+
+    /* ── Product Title Section ── */
+    .product-title-section {
+      margin-bottom: 28px;
+    }
+
+    .category-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #c8a92e;
+      margin-bottom: 6px;
+    }
+
+    .product-name {
+      font-size: 26px;
+      font-weight: 300;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .product-sku {
+      font-size: 13px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      color: #c8a92e;
+      letter-spacing: 1px;
+    }
+
+    /* ── Description ── */
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #c8a92e;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e8e0c8;
+    }
+
+    .description {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #444;
+    }
+
+    /* ── Specs Table ── */
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      border: 1px solid #e0ddd5;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .specs-table th {
+      background: #2a2a2a;
+      color: #c8a92e;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .specs-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .row-even { background: #fafaf6; }
+    .row-odd { background: #ffffff; }
+
+    .spec-key {
+      font-weight: 600;
+      color: #555;
+      width: 40%;
+    }
+
+    .spec-val {
+      color: #1a1a1a;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 11.5px;
+    }
+
+    /* ── Tags / Keywords ── */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #8a7720;
+      background: #f5f0dc;
+      border: 1px solid #e8e0c0;
+      padding: 3px 10px;
+      border-radius: 2px;
+    }
+
+    /* ── Features Quick-Ref ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      color: #444;
+    }
+
+    .feature-bullet {
+      color: #c8a92e;
+      font-size: 14px;
+      line-height: 1.2;
+      flex-shrink: 0;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 36px;
+      padding-top: 16px;
+      border-top: 2px solid #c8a92e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9px;
+      color: #999;
+    }
+
+    .footer-brand {
+      font-weight: 700;
+      color: #c8a92e;
+      letter-spacing: 3px;
+      font-size: 10px;
+    }
+
+    .footer-legal {
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    /* ── Ordering Info ── */
+    .ordering-box {
+      background: #2a2a2a;
+      color: #e0e0e0;
+      padding: 18px 22px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ordering-box .label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 4px;
+    }
+
+    .ordering-box .value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #c8a92e;
+      font-family: 'Consolas', 'Courier New', monospace;
+      letter-spacing: 2px;
+    }
+
+    .ordering-box .contact {
+      text-align: right;
+      font-size: 11px;
+      color: #bbb;
+    }
+
+    .ordering-box .contact a {
+      color: #c8a92e;
+      text-decoration: none;
+    }
+
+    /* ── Print button ── */
+    .print-bar {
+      text-align: center;
+      padding: 16px;
+      background: #f8f8f4;
+      border-bottom: 1px solid #eee;
+    }
+
+    .print-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #c8a92e;
+      color: #fff;
+      border: none;
+      padding: 10px 28px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .print-btn:hover { background: #b89a25; }
+  </style>
+</head>
+<body>
+  <!-- Print / Save as PDF bar -->
+  <div class="print-bar no-print">
+    <button class="print-btn" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="page">
+    <!-- Header -->
+    <div class="header">
+      <div class="brand">
+        <div class="brand-name">ELCS</div>
+        <div class="brand-tagline">Embedded Labs &amp; Control Systems</div>
+      </div>
+      <div class="doc-info">
+        <div class="doc-type">Technical Datasheet</div><br/>
+        <strong>SKU:</strong> ELCS-1118<br/>
+        <strong>Rev:</strong> 1.0<br/>
+        <strong>Date:</strong> 2026-07-01
+      </div>
+    </div>
+
+    <!-- Product Title -->
+    <div class="product-title-section">
+      <div class="category-label">● Modules ●</div>
+      <h1 class="product-name">SD Card Module (Horizontal)</h1>
+      <div class="product-sku">ELCS-1118</div>
+    </div>
+
+    <!-- Description -->
+    <div class="section">
+      <div class="section-title">Overview</div>
+      <p class="description">Low-profile horizontal Micro SD card module with SPI interface.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Detailed Description</div>
+      <p class="description">A low-profile horizontal-mount Micro SD card breakout offering the same SPI interface and FAT32 support as its vertical counterpart, but designed for space-constrained enclosures. Built-in voltage regulator and level shifter ensure compatibility with both 3.3V and 5V microcontroller systems.</p>
+    </div>
+
+    <!-- Key Features from specs -->
+    <div class="section">
+      <div class="section-title">Key Features</div>
+      <div class="features-grid">
+        
+        <div class="feature-item">
+          <span class="feature-bullet">◆</span>
+          <span><strong>Interface:</strong> SPI (MISO, MOSI, SCK, CS)</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-bullet">◆</span>
+          <span><strong>Card Format:</strong> Micro SD (TF)</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-bullet">◆</span>
+          <span><strong>File System:</strong> FAT16 / FAT32</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-bullet">◆</span>
+          <span><strong>Max Capacity:</strong> 32 GB</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-bullet">◆</span>
+          <span><strong>Operating Voltage:</strong> 3.3V – 5V</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-bullet">◆</span>
+          <span><strong>Orientation:</strong> Horizontal (low-profile)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technical Specifications Table -->
+    <div class="section">
+      <div class="section-title">Technical Specifications</div>
+      <table class="specs-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        <tr class="row-even">
+          <td class="spec-key">Interface</td>
+          <td class="spec-val">SPI (MISO, MOSI, SCK, CS)</td>
+        </tr>
+
+        <tr class="row-odd">
+          <td class="spec-key">Card Format</td>
+          <td class="spec-val">Micro SD (TF)</td>
+        </tr>
+
+        <tr class="row-even">
+          <td class="spec-key">File System</td>
+          <td class="spec-val">FAT16 / FAT32</td>
+        </tr>
+
+        <tr class="row-odd">
+          <td class="spec-key">Max Capacity</td>
+          <td class="spec-val">32 GB</td>
+        </tr>
+
+        <tr class="row-even">
+          <td class="spec-key">Operating Voltage</td>
+          <td class="spec-val">3.3V – 5V</td>
+        </tr>
+
+        <tr class="row-odd">
+          <td class="spec-key">Orientation</td>
+          <td class="spec-val">Horizontal (low-profile)</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tags -->
+    <div class="section">
+      <div class="section-title">Keywords / Applications</div>
+      <div class="tags-container">
+        <span class="tag">SD Card</span>
+            <span class="tag">SPI</span>
+            <span class="tag">Data Logging</span>
+            <span class="tag">Low-profile</span>
+            <span class="tag">Storage</span>
+      </div>
+    </div>
+
+    <!-- Ordering Info -->
+    <div class="section">
+      <div class="ordering-box">
+        <div>
+          <div class="label">Order Part Number</div>
+          <div class="value">ELCS-1118</div>
+        </div>
+        <div class="contact">
+          For quotes &amp; custom configurations:<br/>
+          <a href="https://elcs.in">elcs.in</a> &nbsp;|&nbsp; contact@elcs.in
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-brand">ELCS</div>
+      <div class="footer-legal">
+        © 2026 Embedded Labs &amp; Control Systems. All rights reserved.<br/>
+        Specifications subject to change without notice. Rev 1.0 — 2026-07-01
+      </div>
+    </div>
+  </div>
+</body>
+</html>
